@@ -1,0 +1,95 @@
+.main-container {
+  display: flex;
+  gap: 20px; /* Espacio entre los contenedores */
+  overflow-y: hidden; /* Deshabilita el desplazamiento vertical */
+  margin-top: 20px; /* Espacio en la parte superior */
+}
+
+.persona-form-container {
+  width: 300px; /* Ajusta el ancho según sea necesario */
+  padding: 1rem;
+  overflow-y: auto; /* Permite desplazamiento vertical si es necesario */
+  position: relative; /* Necesario para posicionar el botón flotante */
+}
+
+.user-list-container {
+  width: 620px;
+  flex-grow: 1; /* Se expande para ocupar el espacio restante */
+  height: 470px; /* Ajusta la altura según sea necesario */
+  overflow-y: auto; /* Permite desplazamiento vertical */
+}
+
+.floating-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background-color: #001f3f; /* Color de fondo del botón flotante */
+  color: #fff; /* Color del icono */
+}
+
+.button-container {
+  position: fixed;
+  top: 45px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+/* Ajuste de altura de la lista de usuarios temporales */
+.compact-list {
+  max-height: 120px; /* Aumenta la altura máxima de la lista */
+  overflow-y: auto; /* Permite desplazamiento si el contenido excede la altura */
+  background-color: #f2f2f2; /* Fondo gris claro para la lista */
+  padding: 0.5rem;
+  border-radius: 5px; /* Bordes redondeados */
+}
+
+/* Reducción del espacio entre los elementos de la lista */
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f2f2f2;
+  padding: 0.5rem;
+  border-radius: 5px;
+  margin-bottom: 0.5rem; /* Ajusta el espacio entre cada usuario temporal */
+}
+
+/* Estilo del avatar */
+.avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.85em;
+  background-color: #d3cce3;
+}
+
+/* Botón de confirmación */
+.confirm-button {
+  background-color: #001f3f; /* Color de fondo del botón Confirmar */
+  color: #fff; /* Color del texto del botón Confirmar */
+  font-size: 0.85em;
+}
+
+/* Estilos para los campos del formulario */
+.input-field {
+  height: 1.8em;
+  font-size: 0.85em;
+}
+
+.compact-form .field {
+  margin-bottom: 5px; /* Reduce la separación entre los campos del formulario */
+}
+/* Ajuste de margen entre el título "Usuarios Temporales" y el contenedor de la lista */
+h5.mt-4 {
+  margin-bottom: 5px; /* Reduce el espacio inferior del título */
+}
+
+/* Asegura que el margen superior del contenedor de la lista esté alineado */
+.compact-list {
+  margin-top: 0;
+}

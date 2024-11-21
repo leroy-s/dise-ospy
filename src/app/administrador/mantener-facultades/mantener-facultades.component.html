@@ -1,0 +1,79 @@
+<h4 style="font-size: 1em; font-weight: bold; text-align: left; margin: 0; padding-left: 1rem; margin-top: -2rem;">Gestión facultades</h4>
+<!-- Botón de Regresar -->
+<div class="button-container flex justify-content-end align-items-center mt-3 mr-4">
+    <p-button label="REGRESAR" icon="pi pi-arrow-left" styleClass="logout-button" [style]="{'background-color': '#ffa500', 'color': '#fff', 'font-size': '0.6em', 'padding': '0.3em 1em', 'border-radius': '5px', 'border': 'none'}"></p-button>
+</div>
+
+<div class="filter-bar p-2 surface-50 border-round shadow-1 flex align-items-center gap-3" style="width: 100%; max-width: 10000px;margin-top: 0.5rem">
+        <!-- Campo de Campus con margen derecho adicional -->
+        <span class="flex-1 text-center font-bold" style="margin-right: 20px;">Campus</span>
+
+        <!-- Campo de Facultad con margen derecho adicional -->
+        <span class="flex-1 text-center font-bold" style="margin-right: 200px;">Facultad</span>
+
+    <span class="flex-1 text-center font-bold ml-4" style="font-weight: bold; margin-right: 150px;">Carreras</span>
+</div>
+<!-- Contenedor principal con margen superior para separar de la barra horizontal -->
+<div class="main-container flex gap-4 p-0 mt-3">
+    <!-- Columna de Campus y Facultades -->
+    <div class="campus-faculty-container surface-card border-round shadow-2 p-3">
+        <div *ngIf="!campusList.length">
+            <p>No hay campus registrados.</p>
+        </div>
+        <div *ngFor="let campus of campusList" class="campus-card p-card mb-2">
+            <div class="flex align-items-center justify-content-between">
+                <span>{{ campus.sede }}</span>
+                <button pButton icon="pi pi-angle-right" class="p-button-text" (click)="selectCampus(campus.idCampus)"></button>
+            </div>
+            <div *ngIf="selectedCampusId === campus.idCampus" class="faculties-list ml-3 mt-2">
+                <div *ngFor="let faculty of facultades" class="faculty-card">
+                    <span>{{ faculty.facultad }}</span>
+                    <button pButton icon="pi pi-angle-right" class="p-button-text" (click)="selectFacultad(faculty.idFacultad)"></button>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-content-between mt-3">
+            <button pButton label="New Campus" icon="pi pi-plus" class="p-button-sm" (click)="onAddCampus()"></button>
+            <button pButton label="New Faculty" icon="pi pi-plus" class="p-button-sm" (click)="onAddFacultad()" [disabled]="!selectedCampusId"></button>
+        </div>
+    </div>
+
+    <!-- Columna de Carreras -->
+    <div class="school-container surface-card border-round shadow-2 p-3">
+        <button pButton label="New Vocational School" icon="pi pi-plus" class="p-button-sm mb-3" (click)="onAddEscuela()" [disabled]="!selectedFacultadId" style="font-size: 0.8em; padding: 0.9em 0.9em; height: 2.4em; width: 15em;"></button>
+
+        <p-table [value]="escuelas" *ngIf="selectedFacultadId">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre de Escuela Profesional</th>
+                    <th>Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-school>
+                <tr>
+                    <td>{{ school.idEP }}</td>
+                    <td>{{ school.carrera }}</td>
+                    <td>
+                        <button pButton icon="pi pi-pencil" label="Editar" class="p-button-text p-button-success p-button-sm" (click)="editEscuela(school)"></button>
+                        <button pButton icon="pi pi-trash" label="Eliminar" class="p-button-text p-button-danger p-button-sm" (click)="deleteEscuela(school.idEP)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <p *ngIf="!selectedFacultadId || !escuelas.length">No hay escuelas profesionales registradas.</p>
+    </div>
+</div>
+<!-- Diálogo de Edición para Escuela Profesional -->
+<p-dialog header="Editar Escuela Profesional" [(visible)]="displayEditDialog" modal="true" [style]="{width: '400px'}">
+    <div class="p-fluid" *ngIf="selectedSchool">
+        <div class="field">
+            <label for="nombre">Nombre de Escuela Profesional</label>
+            <input id="nombre" type="text" pInputText [(ngModel)]="selectedSchool.carrera" name="first" />
+        </div>
+        <div class="flex justify-content-end mt-3">
+            <button pButton label="Guardar" icon="pi pi-check" class="p-button-sm p-button-success" (click)="saveSchool()"></button>
+            <button pButton label="Cancelar" icon="pi pi-times" class="p-button-sm p-button-secondary ml-2" (click)="displayEditDialog = false"></button>
+        </div>
+    </div>
+</p-dialog>

@@ -1,0 +1,30 @@
+.login-container {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+}
+
+.logo {
+  width: 150px;
+  margin-bottom: 20px;
+}
+
+.field label {
+  font-weight: bold;
+}
+
+a {
+  color: #007ad9;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
