@@ -27,30 +27,6 @@ export const routes: Routes = [
   },
 
   {
-      path: 'escuelafacultad',
-      component:  MantenerFacultadesComponent,
-      title: 'Componente de escuelas y facultades'
-  }
-  ,
-  {
-      path: 'elementos',
-      component:  MantenerElementosComponent,
-      title: 'Componente de roles'
-  }
-  ,
-  {
-      path: 'historial',
-      component:  HistorialComponent,
-      title: 'Componente de historiales'
-  }
-  ,
-  {
-      path: 'redireccionamiento',
-      component:  RedireccionamientoComponent,
-      title: 'Componente de redireccionamiento'
-  }
-  ,
-  {
       path: 'sidebar',
       component: SidebarComponent,
       title: 'Sidebar',
