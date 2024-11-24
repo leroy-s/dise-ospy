@@ -52,7 +52,18 @@ export class AuthService {
     return localStorage.getItem('username');
   }
 
-
+  getUserAuthorities(): string[] {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decodedToken = this.jwtHelper.decodeToken(token);
+        return decodedToken.authorities?.split(',') || [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
 
   isTokenValid(): boolean {
     const token = this.getToken();
@@ -69,11 +80,13 @@ export class AuthService {
     const username = this.getCurrentUser();
 
     if (token && username && this.isTokenValid()) {
+      const decodedToken = this.jwtHelper.decodeToken(token);
       this.authUser.next({
         username,
         jwt: token,
         status: true,
-        message: 'Sesión restaurada'
+        message: 'Sesión restaurada',
+        authorities: decodedToken.authorities
       });
     } else {
       this.logout();

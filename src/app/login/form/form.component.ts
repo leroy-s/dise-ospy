@@ -62,12 +62,27 @@ export class FormComponent {
           if (this.loginData.remember) {
             localStorage.setItem('remember_user', this.loginData.username);
           }
-          this.router.navigate(['/sidebar']);
+          const authorities = this.authService.getUserAuthorities();
+          if (authorities.includes('ROLE_ADMIN')) {
+            this.router.navigate(['/sidebar']);
+          } else if (authorities.includes('ROLE_DIRECTOR')) {
+            this.router.navigate(['/director']);
+          } else if (authorities.includes('ROLE_COORDINADOR')) {
+            this.router.navigate(['/coordinador']);
+          } else if (authorities.includes('ROLE_SECRETARIA')) {
+            this.router.navigate(['/secretaria']);
+          } else {
+            this.MessageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No tiene permisos suficientes'
+            });
+          }
         } else {
           this.MessageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: response.message || 'No tiene roles asignados'
+            detail: response.message || 'Error de autenticación'
           });
         }
       },
@@ -75,7 +90,7 @@ export class FormComponent {
         this.MessageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Error al conectar con el servidor'
+          detail: error || 'Error al conectar con el servidor'
         });
       },
       complete: () => {

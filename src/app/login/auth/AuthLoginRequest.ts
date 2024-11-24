@@ -8,5 +8,5 @@ export interface AuthResponse {
   message: string;
   jwt: string;
   status: boolean;
-
+  authorities?: string;
 }
