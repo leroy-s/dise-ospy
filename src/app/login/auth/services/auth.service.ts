@@ -52,19 +52,7 @@ export class AuthService {
     return localStorage.getItem('username');
   }
 
-  getUserRoles(): string[] {
-    const token = this.getToken();
-    if (token) {
-      const decodedToken = this.jwtHelper.decodeToken(token);
-      return decodedToken.roles || [];
-    }
-    return [];
-  }
 
-  hasRole(role: string): boolean {
-    const roles = this.getUserRoles();
-    return roles.includes(role);
-  }
 
   isTokenValid(): boolean {
     const token = this.getToken();
@@ -79,14 +67,13 @@ export class AuthService {
   private checkToken(): void {
     const token = this.getToken();
     const username = this.getCurrentUser();
-    
+
     if (token && username && this.isTokenValid()) {
       this.authUser.next({
         username,
         jwt: token,
         status: true,
-        message: 'Sesión restaurada',
-        roles: this.getUserRoles()
+        message: 'Sesión restaurada'
       });
     } else {
       this.logout();

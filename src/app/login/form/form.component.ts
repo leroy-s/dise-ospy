@@ -67,7 +67,7 @@ export class FormComponent {
           this.MessageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: response.message || 'Credenciales inválidas'
+            detail: response.message || 'No tiene roles asignados'
           });
         }
       },

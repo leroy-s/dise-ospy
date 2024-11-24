@@ -14,7 +14,7 @@ import { RedireccionamientoComponent } from './administrador/redireccionamiento/
 import { SidebarComponent } from './administrador/sidebar/sidebar.component';
 import { GestionusuariosComponent } from './administrador/gestionusuarios/gestionusuarios.component';
 import { authGuard } from './login/auth/guards/auth.guard';
-import { roleGuard } from './login/auth/guards/role.guard';
+
 
 export const routes: Routes = [
   {
@@ -28,7 +28,7 @@ export const routes: Routes = [
       path: 'sidebar',
       component: SidebarComponent,
       title: 'Sidebar',
-      canActivate: [authGuard, () => roleGuard(['ADMIN'])],
+      canActivate: [authGuard],
       children:[
          {
           path: 'gestion-usuarios',
