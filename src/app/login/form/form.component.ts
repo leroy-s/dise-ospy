@@ -4,11 +4,12 @@ import { AuthService } from './../auth/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
+
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
+import { AuthResponse } from '../auth/AuthLoginRequest';
 
 @Component({
     selector: 'login-form',
@@ -56,7 +57,7 @@ export class FormComponent {
       username: this.loginData.username,
       password: this.loginData.password
     }).subscribe({
-      next: (response) => {
+      next: (response: AuthResponse) => {
         if (response.status) {
           if (this.loginData.remember) {
             localStorage.setItem('remember_user', this.loginData.username);
@@ -70,7 +71,7 @@ export class FormComponent {
           });
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.MessageService.add({
           severity: 'error',
           summary: 'Error',

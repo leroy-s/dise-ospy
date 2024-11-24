@@ -1,10 +1,8 @@
 <p-toast></p-toast>
-<img src="assets/images/logo.png" alt="Logo UPeU" class="logo">
 <div class="login-container flex align-items-center justify-content-center">
   <div class="card shadow-5 p-4 login-box">
-
     <div class="text-center mb-4">
-      <img src="" alt="Logo UPeU" class="logo">
+      <img src="assets/images/logo.png" alt="Logo UPeU" class="logo">
     </div>
     <h3 class="text-center">INICIAR SESIÓN</h3>
 
@@ -18,8 +16,13 @@
             pInputText
             [(ngModel)]="loginData.username"
             name="username"
-            required>
+            required
+            #username="ngModel">
+          <small class="p-error" *ngIf="username.invalid && (username.dirty || username.touched)">
+            Usuario es requerido
+          </small>
         </div>
+
         <div class="field mb-3">
           <label for="password">Contraseña</label>
           <input
@@ -28,20 +31,27 @@
             pInputText
             [(ngModel)]="loginData.password"
             name="password"
-            required>
+            required
+            #password="ngModel">
+          <small class="p-error" *ngIf="password.invalid && (password.dirty || password.touched)">
+            Contraseña es requerida
+          </small>
         </div>
+
         <div class="field-checkbox mb-4">
           <p-checkbox
             [(ngModel)]="loginData.remember"
             [binary]="true"
-            name="remember">
+            name="remember"
+            label="Recordarme">
           </p-checkbox>
-          <label>Recordarme</label>
         </div>
+
         <button
           pButton
           type="submit"
           label="Ingresar"
+          icon="pi pi-sign-in"
           [loading]="loading"
           [disabled]="loginForm.invalid || loading"
           class="w-full p-button-warning">

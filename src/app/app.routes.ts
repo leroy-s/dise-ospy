@@ -13,6 +13,8 @@ import { HistorialComponent } from './administrador/historial/historial.componen
 import { RedireccionamientoComponent } from './administrador/redireccionamiento/redireccionamiento.component';
 import { SidebarComponent } from './administrador/sidebar/sidebar.component';
 import { GestionusuariosComponent } from './administrador/gestionusuarios/gestionusuarios.component';
+import { authGuard } from './login/auth/guards/auth.guard';
+import { roleGuard } from './login/auth/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -20,16 +22,13 @@ export const routes: Routes = [
     component: FormComponent
   },
   //------------------------------------------------------------
-  {
-    path: 'administrador',
-    component: AdministradorComponent,
 
-  },
 
   {
       path: 'sidebar',
       component: SidebarComponent,
       title: 'Sidebar',
+      canActivate: [authGuard, () => roleGuard(['ADMIN'])],
       children:[
          {
           path: 'gestion-usuarios',
