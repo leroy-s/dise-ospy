@@ -1,11 +1,11 @@
+import { EscuelaService } from './../mantener-facultades/service/escuela.service';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { ListboxModule } from 'primeng/listbox';
-import { EscuelaService } from '../services/escuela.service';
-import { FacultadService } from '../services/facultad.service';
+import { FacultadService } from '../mantener-facultades/service/facultad.service';
 import { RolesService } from '../services/roles.service';
 import { MessageService } from 'primeng/api';
 
@@ -30,10 +30,10 @@ export class MantenerElementosComponent {
   currentCarrera: any = { nombre: 'Seleccione una carrera' };
   carreraIndex: number = 0;
   carreraDialogVisible = false;
-  showRoleForm = false; 
+  showRoleForm = false;
   showGestionarSubventana = false;
   showInicioSubventana = false;
-  
+
   roleForm = {
     nombre: '',
   };
@@ -61,8 +61,8 @@ export class MantenerElementosComponent {
 
   editorIndex = 0;
   editores = [
-    { nombre: 'vació' }, 
-    { nombre: 'editor1' }, 
+    { nombre: 'vació' },
+    { nombre: 'editor1' },
     { nombre: 'editor2' }
   ]; // Lista de editores de ejemplo
   selectedEditor: any = this.editores[this.editorIndex]; // Editor seleccionado
@@ -71,7 +71,7 @@ export class MantenerElementosComponent {
     private messageService: MessageService,
     private rolesService: RolesService,
     private facultadService: FacultadService,
-    private escuelaService: EscuelaService
+    private EscuelaService: EscuelaService
   ) {}
 
   ngOnInit(): void {
@@ -96,7 +96,7 @@ export class MantenerElementosComponent {
       return;
     }
 
-    this.escuelaService.getEscuelasByFacultad(this.selectedFacultad.id).subscribe(
+    this.EscuelaService.getEscuelasByFacultad(this.selectedFacultad.id).subscribe(
       (data: any[]) => {
         this.carreras = data;
         this.currentCarrera = this.carreras.length ? this.carreras[0] : { nombre: 'Sin carreras disponibles' };

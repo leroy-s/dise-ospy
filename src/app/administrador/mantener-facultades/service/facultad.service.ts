@@ -7,9 +7,10 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class FacultadService {
-  private apiUrl = 'http://localhost:8080/api/facultad';
+  private apiUrl = 'http://localhost:8080/mantener/facultad';
 
   constructor(private http: HttpClient) {}
+
   getFacultadesByCampus(campusId: number): Observable<Facultad[]> {
     return this.http.get<Facultad[]>(`${this.apiUrl}/campus/${campusId}`);
   }
@@ -23,11 +24,17 @@ export class FacultadService {
   }
 
   createFacultad(facultad: Facultad): Observable<Facultad> {
-    return this.http.post<Facultad>(this.apiUrl, facultad);
+    return this.http.post<Facultad>(this.apiUrl, {
+      nombre: facultad.nombre,
+      idCampus: facultad.idCampus
+    });
   }
 
-  updateFacultad(facultad: Facultad, id: number): Observable<Facultad> {
-    return this.http.put<Facultad>(`${this.apiUrl}/${id}`, facultad);
+  updateFacultad(id: number, facultad: Facultad): Observable<Facultad> {
+    return this.http.put<Facultad>(`${this.apiUrl}/${id}`, {
+      nombre: facultad.nombre,
+      idCampus: facultad.idCampus
+    });
   }
 
   deleteFacultad(id: number): Observable<void> {

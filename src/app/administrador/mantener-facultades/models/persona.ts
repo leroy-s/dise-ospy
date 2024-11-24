@@ -10,12 +10,12 @@ export class Persona {
     telefono: string;
 
     constructor(
-        id: number = 0, 
-        dni: string = '', 
-        apellido: string = '', 
-        correo: string = '', 
-        direccion: string = '', 
-        nacionalidad: string = '', 
+        id: number = 0,
+        dni: string = '',
+        apellido: string = '',
+        correo: string = '',
+        direccion: string = '',
+        nacionalidad: string = '',
         nombre: string = '',    // Valor predeterminado añadido
         sexo: string = '',       // Valor predeterminado añadido
         telefono: string = ''    // Valor predeterminado añadido

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Accesos } from '../models/accesos';
+import { Accesos } from '../mantener-facultades/models/accesos';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({

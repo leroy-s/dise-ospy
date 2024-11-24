@@ -1,15 +1,19 @@
-import { Component } from '@angular/core';
-import { Campus } from '../models/campus';
-import { Facultad } from '../models/facultad';
-import { Escuela } from '../models/escuela';
+import { EscuelaService } from './service/escuela.service';
+import { MessageService } from 'primeng/api';
+import { Component, OnInit } from '@angular/core';
+import { Campus } from './models/campus';
+import { Facultad } from './models/facultad';
+import { Escuela } from './models/escuela';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
-import { EscuelaService } from '../services/escuela.service';
-import { FacultadService } from '../services/facultad.service';
-import { CampusService } from '../services/campus.service';
+import { FacultadService } from './service/facultad.service';
+import { CampusService } from './service/campus.service';
+import { ToastModule } from 'primeng/toast';
+import { Observable } from 'rxjs';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-mantener-facultades',
@@ -19,153 +23,129 @@ import { CampusService } from '../services/campus.service';
      CommonModule,
       ButtonModule,
       TableModule,
-      DialogModule
+      DialogModule,
+      ToastModule,
+      InputTextModule
   ],
   templateUrl: './mantener-facultades.component.html',
   styleUrl: './mantener-facultades.component.css'
 })
-export class MantenerFacultadesComponent {
+export class MantenerFacultadesComponent implements OnInit {
   campusList: Campus[] = [];
   facultades: Facultad[] = [];
   escuelas: Escuela[] = [];
-  itemsPerPage: number = 10;
-  mostrarOptions: number[] = [10, 20, 50];
-  searchQuery: string = '';
 
-  selectedCampusId: number | null = null;
-  selectedFacultadId: number | null = null;
+  selectedCampusId?: number;
+  selectedFacultadId?: number;
 
-  displayEditDialog: boolean = false;
-  selectedSchool: Escuela | null = null;
+  displayDialog = false;
+  newItem: any = {};
+  dialogMode: 'campus' | 'facultad' | 'escuela' = 'campus';
 
   constructor(
     private campusService: CampusService,
     private facultadService: FacultadService,
-    private escuelaService: EscuelaService
+    private escuelaService: EscuelaService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
     this.loadCampus();
   }
 
-  onBack() {
-    console.log("Regresar");
-  }
-
-  onItemsPerPageChange() {
-    console.log("Mostrar elementos:", this.itemsPerPage);
-  }
-
-  onSearch() {
-    console.log("Buscar:", this.searchQuery);
-  }
-
   loadCampus() {
-    this.campusService.getCampus().subscribe(data => {
-      this.campusList = data;
+    this.campusService.getCampus().subscribe({
+      next: (data: Campus[]) => (this.campusList = data),
+      error: (error: any) => this.showError('Error al cargar campus')
     });
   }
 
   selectCampus(campusId: number) {
     this.selectedCampusId = campusId;
-    this.loadFacultades(campusId);
+    this.selectedFacultadId = undefined; // Reiniciar la facultad seleccionada al cambiar el campus
     this.facultades = [];
-    this.escuelas = [];
-  }
-
-  onAddCampus() {
-    const newCampus: Campus = { idCampus: 0, sede: 'New Campus' };
-    this.campusService.createCampus(newCampus).subscribe(() => {
-      this.loadCampus();
-    });
-  }
-
-  editCampus(campus: Campus) {
-    this.campusService.updateCampus(campus, campus.idCampus).subscribe(() => {
-      this.loadCampus();
-    });
-  }
-
-  deleteCampus(campusId: number) {
-    this.campusService.deleteCampus(campusId).subscribe(() => {
-      this.loadCampus();
-    });
+    this.loadFacultades(campusId);
   }
 
   loadFacultades(campusId: number) {
-    this.facultadService.getFacultadesByCampus(campusId).subscribe(data => {
-      this.facultades = data;
+    this.facultadService.getFacultadesByCampus(campusId).subscribe({
+      next: (data) => (this.facultades = data),
+      error: () => this.showError('Error al cargar facultades')
     });
   }
 
   selectFacultad(facultadId: number) {
     this.selectedFacultadId = facultadId;
-    this.loadEscuelas(facultadId);
     this.escuelas = [];
-  }
-
-  onAddFacultad() {
-    if (this.selectedCampusId) {
-      const newFacultad: Facultad = { idFacultad: 0, facultad: 'New Faculty', idCampus: this.selectedCampusId };
-      this.facultadService.createFacultad(newFacultad).subscribe(() => {
-        this.loadFacultades(this.selectedCampusId!);
-      });
-    }
-  }
-
-  editFacultad(facultad: Facultad) {
-    this.facultadService.updateFacultad(facultad, facultad.idFacultad).subscribe(() => {
-      if (this.selectedCampusId) {
-        this.loadFacultades(this.selectedCampusId);
-      }
-    });
-  }
-
-  deleteFacultad(facultadId: number) {
-    this.facultadService.deleteFacultad(facultadId).subscribe(() => {
-      if (this.selectedCampusId) {
-        this.loadFacultades(this.selectedCampusId);
-      }
-    });
+    this.loadEscuelas(facultadId);
   }
 
   loadEscuelas(facultadId: number) {
-    this.escuelaService.getEscuelasByFacultad(facultadId).subscribe(data => {
-      this.escuelas = data;
+    this.escuelaService.getEscuelasByFacultad(facultadId).subscribe({
+      next: (data) => (this.escuelas = data),
+      error: () => this.showError('Error al cargar escuelas')
     });
   }
 
-  onAddEscuela() {
-    if (this.selectedFacultadId) {
-      const newEscuela: Escuela = { idEP: 0, carrera: 'New Vocational School', idFacultad: this.selectedFacultadId };
-      this.escuelaService.createEscuela(newEscuela).subscribe(() => {
-        this.loadEscuelas(this.selectedFacultadId!);
-      });
-    }
+  showCreateDialog(type: 'campus' | 'facultad' | 'escuela') {
+    this.dialogMode = type;
+    this.newItem = {};
+    this.displayDialog = true;
   }
 
-  editEscuela(escuela: Escuela) {
-    this.selectedSchool = { ...escuela }; // Clona el objeto seleccionado para edición
-    this.displayEditDialog = true; // Abre el diálogo de edición
-  }
+  saveNewItem() {
+    let request: Observable<Campus | Facultad | Escuela> | undefined;
 
-  saveSchool() {
-    if (this.selectedSchool) {
-      this.escuelaService.updateEscuela(this.selectedSchool, this.selectedSchool.idEP).subscribe(() => {
-        if (this.selectedFacultadId) {
-          this.loadEscuelas(this.selectedFacultadId);
+    switch (this.dialogMode) {
+      case 'campus':
+        request = this.campusService.createCampus(this.newItem);
+        break;
+      case 'facultad':
+        if (this.selectedCampusId) {
+          this.newItem.idCampus = this.selectedCampusId;
+          request = this.facultadService.createFacultad(this.newItem);
+        } else {
+          this.showError('Debe seleccionar un campus antes de crear una facultad');
         }
-        this.displayEditDialog = false; // Cierra el diálogo después de guardar
-        this.selectedSchool = null;
+        break;
+      case 'escuela':
+        if (this.selectedFacultadId) {
+          this.newItem.idFacultad = this.selectedFacultadId;
+          request = this.escuelaService.createEscuela(this.newItem);
+        } else {
+          this.showError('Debe seleccionar una facultad antes de crear una escuela');
+        }
+        break;
+    }
+
+    if (request) {
+      request.subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Elemento creado' });
+          this.refreshCurrentView();
+          this.displayDialog = false;
+        },
+        error: () => this.showError('Error al crear elemento')
       });
     }
   }
 
-  deleteEscuela(escuelaId: number) {
-    this.escuelaService.deleteEscuela(escuelaId).subscribe(() => {
-      if (this.selectedFacultadId) {
-        this.loadEscuelas(this.selectedFacultadId);
-      }
+  private refreshCurrentView() {
+    this.loadCampus();
+    if (this.selectedCampusId) {
+      this.loadFacultades(this.selectedCampusId);
+    }
+    if (this.selectedFacultadId) {
+      this.loadEscuelas(this.selectedFacultadId);
+    }
+  }
+
+  private showError(message: string) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 5000 // Mostrar el mensaje por 5 segundos
     });
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Roles } from '../models/roles';
+import { Roles } from '../mantener-facultades/models/roles';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -19,7 +19,7 @@ export class RolesService {
   getRolesById(id: number): Observable<Roles[]> {
     return this.http.get<Roles[]>(`${this.apiUrl}/${id}`);
 }
-  
+
 
   createRoles(categoria: Roles): Observable<Roles> {
     return this.http.post<Roles>(this.apiUrl, categoria);

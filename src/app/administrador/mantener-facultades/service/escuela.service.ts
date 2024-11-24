@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Escuela } from '../models/escuela';
 import { HttpClient } from '@angular/common/http';
+import { Escuela } from '../models/escuela';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EscuelaService {
-  private apiUrl = 'http://localhost:8080/api/Escuela';
+  private apiUrl = 'http://localhost:8080/mantener/escuela';
 
   constructor(private http: HttpClient) {}
 
   getEscuelasByFacultad(facultadId: number): Observable<Escuela[]> {
     return this.http.get<Escuela[]>(`${this.apiUrl}/facultad/${facultadId}`);
   }
-  
+
   getEscuela(): Observable<Escuela[]> {
     return this.http.get<Escuela[]>(this.apiUrl);
   }
@@ -23,12 +23,18 @@ export class EscuelaService {
     return this.http.get<Escuela>(`${this.apiUrl}/${id}`);
   }
 
-  createEscuela(escuelaProfesional: Escuela): Observable<Escuela> {
-    return this.http.post<Escuela>(this.apiUrl, escuelaProfesional);
+  createEscuela(escuela: Escuela): Observable<Escuela> {
+    return this.http.post<Escuela>(this.apiUrl, {
+      carrera: escuela.carrera,
+      idFacultad: escuela.idFacultad
+    });
   }
 
-  updateEscuela(escuelaProfesional: Escuela, id: number): Observable<Escuela> {
-    return this.http.put<Escuela>(`${this.apiUrl}/${id}`, escuelaProfesional);
+  updateEscuela(id: number, escuela: Escuela): Observable<Escuela> {
+    return this.http.put<Escuela>(`${this.apiUrl}/${id}`, {
+      carrera: escuela.carrera,
+      idFacultad: escuela.idFacultad
+    });
   }
 
   deleteEscuela(id: number): Observable<void> {
