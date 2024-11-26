@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { PracticanteEPService } from '../services/practicante-ep.service';
 import { Usuario } from '../models/usuario/usuario.module';
 import { PracticanteEP } from '../models/practicante-ep/practicante-ep.module';
 import { RouterLink, RouterModule } from '@angular/router';
@@ -26,6 +25,11 @@ import { Tutor } from '../models/tutor/tutor.module';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import { SidebarcoordinadorComponent } from '../sidebarcoordinador/sidebarcoordinador.component';
+import { PracticanteEPService } from './services/practicante-ep.service';
+
+import { IEscuela, IUsuarioTemp } from './model/usuarioprac-tutor';
+import { MessageService } from 'primeng/api';
+
 @Component({
 
   selector: 'app-practicante-ep',
@@ -46,196 +50,200 @@ import { SidebarcoordinadorComponent } from '../sidebarcoordinador/sidebarcoordi
     AvatarModule,
     ListboxModule],
   templateUrl: './practicante-ep.component.html',
-  styleUrls: ['./practicante-ep.component.css']
+  styleUrls: ['./practicante-ep.component.css'],
+  providers: [MessageService]
+
 })
 export class PracticanteEpComponent implements OnInit {
-  persona: Persona = new Persona();
-  roles = [{ label: 'Practicante', value: 'Practicante' }, { label: 'Tutor', value: 'Tutor' }];
-  semestres = ['2023-I', '2023-II', '2024-I'];
-  escuelas: any[] = [];
+  persona = {
+    nombre: '',
+    apellido: '',
+    correoElectronico: '',
+    dni: '',
+    telefono: '',
+    direccion: '',
+    sexo: 'M',
+    nacionalidad: 'Peruana'
+  };
+
+  semestreSeleccionado: string = '';
+  lineaSeleccionada: any = null;
+
+  busqueda: string = '';
+  usuariosTemporales: any[] = [];
+  escuelaSeleccionada: any = null;
+  dialogoCarreraVisible = false;
+  indiceRolActual = 0;
+  roles = [
+    { nombre: 'PRACTICANTE' },
+    { nombre: 'TUTOR' }
+  ];
+  rolActual = this.roles[0];
   lineas: any[] = [];
-  selectedRole: string = '';
-  semestre: string = '';
-  linea: any = null;
-  escuela: any = null;
-  credentialsVisible = false;
-  generatedCredentials = { usuario: '', password: '' };
+  escuelas: any[] = [];
+  usuariosRegistrados: any[] = [];
+  visible: boolean = false;
+
   constructor(
-    private personaService: PersonaService,
-    private usuarioService: UsuarioService,
-    private practicanteService: PracticanteService,
-    private practicanteEPService: PracticanteEPService,
-    private tutorService: TutorService
+    private practicanteService: PracticanteEPService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
-    this.loadEscuelas();
-    this.loadLineas();
+    this.cargarLineas();
+    this.cargarEscuelas();
+    this.cargarUsuariosRegistrados();
   }
 
-  loadEscuelas() {
-    // Cargar escuelas profesionales desde el servicio.
-  }
-
-  loadLineas() {
-    // Cargar líneas desde el servicio.
-  }
-
-  onSubmit() {
-    if (this.selectedRole === 'Practicante') {
-      this.registrarPracticante();
-    } else if (this.selectedRole === 'Tutor') {
-      this.registrarTutor();
-    }
-  }
-
-  registrarPracticante() {
-    this.personaService.createPersona(this.persona).subscribe((persona) => {
-      const usuario = new Usuario();
-      usuario.usuario = `${persona.nombre}.${persona.apellido}`.toLowerCase();
-      usuario.password = Math.random().toString(36).slice(-8);
-      usuario.persona = persona;
-
-      this.usuarioService.createUsuario(usuario).subscribe(() => {
-        const practicanteEP = new PracticanteEP();
-        practicanteEP.escuelasprofesionales.id = 1; // Ingeniería de Sistemas.
-        practicanteEP.semestre = this.semestre;
-
-        this.practicanteEPService.createPracticanteEP(practicanteEP).subscribe(() => {
-          this.generatedCredentials = {
-            usuario: usuario.usuario,
-            password: usuario.password,
-          };
-          this.credentialsVisible = true;
-          alert('Practicante registrado y credenciales enviadas.');
-        });
-      });
+  cargarLineas() {
+    this.practicanteService.getLineas().subscribe({
+      next: (data) => this.lineas = data,
+      error: (error) => console.error('Error al cargar líneas:', error)
     });
   }
 
-  registrarTutor() {
-    this.personaService.createPersona(this.persona).subscribe((persona) => {
-      const usuario = new Usuario();
-      usuario.usuario = `${persona.nombre}.${persona.apellido}`.toLowerCase();
-      usuario.password = Math.random().toString(36).slice(-8);
-      usuario.persona = persona;
-
-      this.usuarioService.createUsuario(usuario).subscribe(() => {
-        const tutor = new Tutor();
-        tutor.escuelaprofesionales = this.escuela;
-        tutor.personas = persona;
-
-        this.tutorService.createTutor(tutor).subscribe(() => {
-          this.generatedCredentials = {
-            usuario: usuario.usuario,
-            password: usuario.password,
-          };
-          this.credentialsVisible = true;
-          alert('Tutor registrado y credenciales enviadas.');
-        });
-      });
+  cargarEscuelas() {
+    this.practicanteService.getEscuelas().subscribe({
+      next: (data) => this.escuelas = data,
+      error: (error) => console.error('Error al cargar escuelas:', error)
     });
   }
-  onGenerateTemplate() {
-    const headers = [['Nombre', 'Apellido', 'Correo', 'DNI', 'Teléfono', 'Rol']];
-    const worksheet = XLSX.utils.aoa_to_sheet(headers);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Plantilla');
-    XLSX.writeFile(workbook, 'PlantillaPracticantesTutors.xlsx');
-  }
 
-
-
-  onExportPDF() {
-    const doc = new jsPDF();
-    doc.text('Listado de Practicantes y Tutores', 10, 10);
-    doc.save('Listado.pdf');
-  }
-
-  onExportExcel() {
-    const data = [
-      ['Nombre', 'Apellido', 'Correo', 'DNI', 'Rol'],
-      ['Juan', 'Pérez', 'juan.perez@example.com', '12345678', 'Practicante']
+  cargarUsuariosRegistrados() {
+    // Simular carga de usuarios registrados - reemplazar con llamada real a API
+    this.usuariosRegistrados = [
+      { id: 1, nombre: 'Juan', apellido: 'Pérez', rol: 'PRACTICANTE', escuela: 'Ingeniería', semestre: '2023-II' },
+      { id: 2, nombre: 'Ana', apellido: 'García', rol: 'TUTOR', escuela: 'Sistemas', semestre: '2023-II' },
+      // ...más usuarios
     ];
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Listado');
-    XLSX.writeFile(workbook, 'Listado.xlsx');
   }
 
+  agregarUsuarioTemporal() {
+    if (!this.validarFormulario()) return;
 
-
-  listaRegistros = [
-    { nombre: 'Juan', apellido: 'Pérez', correo: 'juan.perez@example.com', dni: '12345678', rol: 'Practicante' },
-    { nombre: 'Ana', apellido: 'García', correo: 'ana.garcia@example.com', dni: '87654321', rol: 'Tutor' }
-  ];
-
-  onSubmit2() {
-    const nuevoRegistro = {
-      nombre: this.persona.nombre,
-      apellido: this.persona.apellido,
-      correo: this.persona.correo_electronico,
-      dni: this.persona.dni,
-      rol: this.selectedRole
+    const usuario = {
+      ...this.persona,
+      rol: this.rolActual.nombre,
+      escuela: this.escuelaSeleccionada?.nombre
     };
-    this.listaRegistros.push(nuevoRegistro);
-    this.resetForm();
+
+    this.usuariosTemporales.push(usuario);
+    this.limpiarFormulario();
+    this.mostrarMensajeExito('Usuario agregado temporalmente');
   }
 
-  resetForm() {
-    this.persona = new Persona();
-    this.selectedRole = '';
-  }
-  triggerFileInput() {
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    fileInput.click();
-  }
-
-  onImport(event: any) {
-    const target: DataTransfer = <DataTransfer>event.target;
-
-    if (target.files.length !== 1) {
-      alert('Por favor, selecciona un único archivo Excel.');
+  confirmarUsuarios() {
+    if (!this.escuelaSeleccionada) {
+      this.mostrarError('Seleccione una escuela');
       return;
     }
 
-    const file = target.files[0];
-    const fileType = file.name.split('.').pop()?.toLowerCase();
-
-    if (fileType !== 'xlsx' && fileType !== 'xls') {
-      alert('Por favor, selecciona un archivo Excel válido (.xlsx, .xls).');
-      return;
-    }
-
-    const reader: FileReader = new FileReader();
-    reader.onload = (e: any) => {
-      const bstr: string = e.target.result;
-      const workbook = XLSX.read(bstr, { type: 'binary' });
-      const sheetName = workbook.SheetNames[0];
-      const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-      this.processImportedData(data);
-    };
-    reader.readAsBinaryString(file);
-  }
-
-  processImportedData(data: any[]) {
-    if (!data || data.length === 0) {
-      alert('El archivo Excel está vacío o no tiene datos válidos.');
-      return;
-    }
-
-    data.forEach((row, index) => {
-
-      if (!row['Nombre'] || !row['Apellido'] || !row['Correo'] || !row['DNI'] || !row['Rol']) {
-        alert(`Error en la fila ${index + 1}: Falta información requerida.`);
-        return;
+    this.usuariosTemporales.forEach(usuario => {
+      if (usuario.rol === 'PRACTICANTE') {
+        this.registrarPracticante(usuario);
+      } else {
+        this.registrarTutor(usuario);
       }
-
-      // Registrar cada fila
-      console.log('Procesando fila:', row);
-
     });
   }
 
+  registrarPracticante(datos: any) {
+    const practicante = {
+      ...datos,
+      codigo: `${new Date().getFullYear()}001`,
+      añoEstudio: this.semestreSeleccionado,
+      escuelaId: this.escuelaSeleccionada.id,
+      lineaId: this.lineaSeleccionada.id
+    };
+
+    this.practicanteService.createPracticante(practicante).subscribe({
+      next: () => {
+        this.mostrarMensajeExito('Practicante registrado exitosamente');
+        this.usuariosTemporales = [];
+      },
+      error: (error) => this.mostrarError('Error al registrar practicante')
+    });
+  }
+
+  registrarTutor(datos: any) {
+    // Implementar cuando esté disponible la API de tutores
+    console.log('Registro de tutor pendiente:', datos);
+  }
+
+  rolAnterior() {
+    this.indiceRolActual = (this.indiceRolActual - 1 + this.roles.length) % this.roles.length;
+    this.rolActual = this.roles[this.indiceRolActual];
+    this.limpiarFormulario();
+  }
+
+  rolSiguiente() {
+    this.indiceRolActual = (this.indiceRolActual + 1) % this.roles.length;
+    this.rolActual = this.roles[this.indiceRolActual];
+    this.limpiarFormulario();
+  }
+
+  private validarFormulario(): boolean {
+    if (!this.persona.nombre || !this.persona.apellido) {
+      this.mostrarError('Complete los campos requeridos');
+      return false;
+    }
+    return true;
+  }
+
+  private limpiarFormulario() {
+    this.persona = {
+      nombre: '',
+      apellido: '',
+      correoElectronico: '',
+      dni: '',
+      telefono: '',
+      direccion: '',
+      sexo: 'M',
+      nacionalidad: 'Peruana'
+    };
+  }
+
+  private mostrarMensajeExito(mensaje: string) {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: mensaje
+    });
+  }
+
+  private mostrarError(mensaje: string) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: mensaje
+    });
+  }
+  agregarTemporal() {
+    if (!this.validarFormulario()) {
+      this.mostrarError('Complete todos los campos requeridos');
+      return;
+    }
+
+    const nuevoUsuario = {
+      ...this.persona,
+      rol: this.rolActual.nombre,
+      escuela: this.escuelaSeleccionada?.nombre,
+      semestre: this.semestreSeleccionado,
+      linea: this.lineaSeleccionada?.nombre
+    };
+
+    this.usuariosTemporales.push(nuevoUsuario);
+    this.mostrarMensajeExito('Usuario agregado a la lista temporal');
+    this.limpiarFormulario();
+  }
+
+  eliminarTemporal(index: number) {
+    this.usuariosTemporales.splice(index, 1);
+    this.mostrarMensajeExito('Usuario eliminado de la lista temporal');
+  }
+
+  mostrarDialogo() {
+    this.visible = true;
+  }
 
 }
