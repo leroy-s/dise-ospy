@@ -70,14 +70,25 @@ export class MantenerFacultadesComponent implements OnInit {
   }
 
   loadFacultades(campusId: number) {
+    // Verificar token antes de hacer la llamada
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.showError('No hay sesión activa. Por favor, inicie sesión nuevamente.');
+      return;
+    }
+
     this.facultadService.getFacultadesByCampus(campusId).subscribe({
       next: (data) => {
         console.log('Facultades cargadas:', data); // Para debugging
         this.facultades = data;
       },
       error: (error) => {
-        console.error('Error al cargar facultades:', error);
-        this.showError('Error al cargar facultades');
+        console.error('Error detallado:', error);
+        if (error.status === 403) {
+          this.showError('No tiene permisos para acceder a esta información');
+        } else {
+          this.showError('Error al cargar facultades: ' + error.message);
+        }
       }
     });
   }

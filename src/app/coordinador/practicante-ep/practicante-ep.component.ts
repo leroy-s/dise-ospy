@@ -1,13 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Usuario } from '../models/usuario/usuario.module';
-import { PracticanteEP } from '../models/practicante-ep/practicante-ep.module';
+
 import { RouterLink, RouterModule } from '@angular/router';
 
-import { Persona } from '../models/persona/persona.module';
-import { PersonaService } from '../services/persona.service';
-import { UsuarioService } from '../services/usuario.service';
+
 
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -19,16 +16,12 @@ import { MessageModule } from 'primeng/message';
 import { DropdownModule } from 'primeng/dropdown';
 import { ListboxModule } from 'primeng/listbox';
 import { TableModule } from 'primeng/table';
-import { PracticanteService } from '../services/practicante.service';
-import { TutorService } from '../services/tutor.service';
-import { Tutor } from '../models/tutor/tutor.module';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import { SidebarcoordinadorComponent } from '../sidebarcoordinador/sidebarcoordinador.component';
+
 import { PracticanteEPService } from './services/practicante-ep.service';
 
-import { IEscuela, IUsuarioTemp } from './model/usuarioprac-tutor';
+
 import { MessageService } from 'primeng/api';
+import { EscuelaProfesional, Facultad, IPracticante } from './model/usuarioprac-tutor';
 
 @Component({
 
@@ -70,8 +63,21 @@ export class PracticanteEpComponent implements OnInit {
   lineaSeleccionada: any = null;
 
   busqueda: string = '';
-  usuariosTemporales: any[] = [];
-  escuelaSeleccionada: any = null;
+  usuariosTemporales: Array<{
+    nombre: string;
+    apellido: string;
+    correoElectronico: string;
+    dni: string;
+    telefono: string;
+    direccion: string;
+    sexo: string;
+    nacionalidad: string;
+    rol: string;
+    escuela?: string;
+    semestre?: string;
+    linea?: string;
+  }> = [];
+  escuelaSeleccionada: EscuelaProfesional | null = null;
   dialogoCarreraVisible = false;
   indiceRolActual = 0;
   roles = [
@@ -80,9 +86,15 @@ export class PracticanteEpComponent implements OnInit {
   ];
   rolActual = this.roles[0];
   lineas: any[] = [];
-  escuelas: any[] = [];
+  facultades: Facultad[] = [];
+  facultadSeleccionada: Facultad | null = null;
+  escuelas: EscuelaProfesional[] = [];
   usuariosRegistrados: any[] = [];
   visible: boolean = false;
+
+  // Agregar una variable temporal para la selección
+  escuelaSeleccionadaTemp: EscuelaProfesional | null = null;
+  facultadSeleccionadaTemp: Facultad | null = null;
 
   constructor(
     private practicanteService: PracticanteEPService,
@@ -91,7 +103,7 @@ export class PracticanteEpComponent implements OnInit {
 
   ngOnInit() {
     this.cargarLineas();
-    this.cargarEscuelas();
+    this.cargarFacultades();
     this.cargarUsuariosRegistrados();
   }
 
@@ -102,20 +114,70 @@ export class PracticanteEpComponent implements OnInit {
     });
   }
 
-  cargarEscuelas() {
-    this.practicanteService.getEscuelas().subscribe({
-      next: (data) => this.escuelas = data,
-      error: (error) => console.error('Error al cargar escuelas:', error)
+  cargarFacultades() {
+    this.practicanteService.getFacultades().subscribe({
+      next: (data) => {
+        console.log('Facultades recibidas:', data); // Para debug
+        if (Array.isArray(data)) {
+          this.facultades = data;
+        } else {
+          console.error('La respuesta no es un array:', data);
+          this.mostrarError('Formato de datos inválido');
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar facultades:', error);
+        this.mostrarError('Error al cargar facultades: ' + error.message);
+      }
+    });
+  }
+
+  onFacultadChange(event: any) {
+    console.log('Evento de cambio de facultad:', event); // Debug evento
+    if (event.value?.id) {
+      this.facultadSeleccionadaTemp = event.value;
+      this.cargarEscuelasPorFacultad(event.value.id);
+      this.escuelaSeleccionadaTemp = null;
+    }
+  }
+
+  cargarEscuelasPorFacultad(facultadId: number) {
+    this.escuelas = []; // Limpiar escuelas anteriores
+    this.practicanteService.getEscuelasByFacultad(facultadId).subscribe({
+      next: (data) => {
+        console.log('Escuelas recibidas:', data); // Para debug
+        if (Array.isArray(data)) {
+          this.escuelas = data.map(escuela => ({
+            ...escuela,
+            nombre: escuela.nombre || escuela.carrera // Fallback al campo carrera si nombre está vacío
+          }));
+        } else {
+          console.error('Respuesta de escuelas no válida:', data);
+          this.mostrarError('Formato de datos de escuelas inválido');
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar escuelas:', error);
+        this.mostrarError(`Error al cargar escuelas: ${error.message || 'Error desconocido'}`);
+      }
     });
   }
 
   cargarUsuariosRegistrados() {
-    // Simular carga de usuarios registrados - reemplazar con llamada real a API
-    this.usuariosRegistrados = [
-      { id: 1, nombre: 'Juan', apellido: 'Pérez', rol: 'PRACTICANTE', escuela: 'Ingeniería', semestre: '2023-II' },
-      { id: 2, nombre: 'Ana', apellido: 'García', rol: 'TUTOR', escuela: 'Sistemas', semestre: '2023-II' },
-      // ...más usuarios
-    ];
+    this.practicanteService.getPracticantes().subscribe({
+      next: (data) => {
+        this.usuariosRegistrados = data.map(practicante => ({
+          ...practicante,
+          rol: 'PRACTICANTE',
+          escuela: this.escuelaSeleccionada?.nombre || 'No asignada',
+          semestre: this.semestreSeleccionado || '2024-I'
+        }));
+      },
+      error: (error) => {
+        console.error('Error al cargar practicantes:', error);
+        this.mostrarError('Error al cargar la lista de practicantes');
+      }
+    });
   }
 
   agregarUsuarioTemporal() {
@@ -140,28 +202,45 @@ export class PracticanteEpComponent implements OnInit {
 
     this.usuariosTemporales.forEach(usuario => {
       if (usuario.rol === 'PRACTICANTE') {
-        this.registrarPracticante(usuario);
+        // Convertir el usuario temporal a IPracticante
+        const practicante: IPracticante = {
+          username: `practicante${new Date().getFullYear()}${Math.floor(Math.random() * 1000)}`,
+          nombre: usuario.nombre,
+          apellido: usuario.apellido,
+          correoElectronico: usuario.correoElectronico,
+          dni: usuario.dni,
+          telefono: usuario.telefono,
+          direccion: usuario.direccion,
+          sexo: usuario.sexo,
+          nacionalidad: usuario.nacionalidad,
+          codigo: `${new Date().getFullYear()}001`,
+          añoEstudio: this.semestreSeleccionado || '2024-I',
+          escuelaId: this.escuelaSeleccionada!.id,
+          lineaId: this.lineaSeleccionada.id
+        };
+        this.registrarPracticante(practicante);
       } else {
         this.registrarTutor(usuario);
       }
     });
   }
 
-  registrarPracticante(datos: any) {
-    const practicante = {
-      ...datos,
-      codigo: `${new Date().getFullYear()}001`,
-      añoEstudio: this.semestreSeleccionado,
-      escuelaId: this.escuelaSeleccionada.id,
-      lineaId: this.lineaSeleccionada.id
-    };
+  registrarPracticante(practicante: IPracticante) {
+    if (!this.escuelaSeleccionada?.id || !this.lineaSeleccionada?.id) {
+      this.mostrarError('Seleccione una escuela y una línea');
+      return;
+    }
 
     this.practicanteService.createPracticante(practicante).subscribe({
-      next: () => {
+      next: (response) => {
         this.mostrarMensajeExito('Practicante registrado exitosamente');
         this.usuariosTemporales = [];
+        this.cargarUsuariosRegistrados(); // Recargar la lista después de crear
       },
-      error: (error) => this.mostrarError('Error al registrar practicante')
+      error: (error) => {
+        console.error('Error al registrar:', error);
+        this.mostrarError('Error al registrar practicante');
+      }
     });
   }
 
@@ -244,6 +323,32 @@ export class PracticanteEpComponent implements OnInit {
 
   mostrarDialogo() {
     this.visible = true;
+  }
+
+  // Modificar el método para confirmar la selección
+  confirmarSeleccionEscuela() {
+    if (this.escuelaSeleccionadaTemp) {
+      this.escuelaSeleccionada = this.escuelaSeleccionadaTemp;
+      this.facultadSeleccionada = this.facultadSeleccionadaTemp;
+      this.dialogoCarreraVisible = false;
+      this.mostrarMensajeExito('Escuela seleccionada correctamente');
+    } else {
+      this.mostrarError('Debe seleccionar una escuela');
+    }
+  }
+
+  // Método para cancelar la selección
+  cancelarSeleccionEscuela() {
+    this.escuelaSeleccionadaTemp = null;
+    this.facultadSeleccionadaTemp = null;
+    this.dialogoCarreraVisible = false;
+  }
+
+  // Modificar el método para abrir el diálogo
+  mostrarDialogoEscuela() {
+    this.escuelaSeleccionadaTemp = this.escuelaSeleccionada;
+    this.facultadSeleccionadaTemp = this.facultadSeleccionada;
+    this.dialogoCarreraVisible = true;
   }
 
 }

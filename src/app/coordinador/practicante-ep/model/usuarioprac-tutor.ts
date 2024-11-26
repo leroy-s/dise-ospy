@@ -1,15 +1,15 @@
 export interface Facultad {
   id: number;
   nombre: string;
-  facultad: string; // Añadido
-  campus: string;   // Añadido
+  estado?: string;
 }
 
 export interface EscuelaProfesional {
   id: number;
   nombre: string;
   carrera: string;
-  facultades: Facultad; // Cambiado de 'string' a 'Facultad'
+  facultadId: number;  // Asegúrate de que coincida con la respuesta del backend
+  estado?: string;
 }
 
 export interface IPersona {

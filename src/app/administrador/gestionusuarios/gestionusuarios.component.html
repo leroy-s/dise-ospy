@@ -5,11 +5,10 @@
 <div class="filter-bar p-1 surface-50 border-round shadow-1 flex align-items-center gap-3">
   <button pButton [label]="selectedCarrera ? selectedCarrera.carrera : 'Seleccionar Carrera'"
           icon="pi pi-chevron-down" class="p-button-sm"
-          style="background-color: #f5f5f5; color: #666; border: 1px solid #ccc;"
           (click)="showCarreraDialog()"></button>
 
   <span class="divider"></span>
-  <span class="role-label">{{ currentRole?.nombre || 'Seleccione un rol' }}</span>
+  <span class="role-label">{{ currentRole.nombre }}</span>
 
   <div class="navigation-buttons flex align-items-center gap-2">
       <button pButton icon="pi pi-angle-left" class="p-button-text p-button-sm" (click)="previousRole()"></button>
@@ -71,19 +70,21 @@
           <input pInputText id="correo" [(ngModel)]="persona.correo" class="input-field" />
       </div>
 
-      <ng-container *ngIf="currentRole?.nombre === 'DIRECTOR'">
+      <ng-container *ngIf="currentRole.nombre === 'DIRECTOR'">
           <div class="field col-12 mb-1">
               <label>Firma Digital:</label>
-              <div class="surface-100 border-round p-2 text-center text-500">
-                  Área reservada para firma digital
-              </div>
+              <input type="file"
+                     accept="image/*"
+                     class="p-inputtext p-component w-full"
+                     (change)="handleFileUpload($event, 'firma')" />
           </div>
 
           <div class="field col-12 mb-1">
               <label>Sello de Director:</label>
-              <div class="surface-100 border-round p-2 text-center text-500">
-                  Área reservada para sello institucional
-              </div>
+              <input type="file"
+                     accept="image/*"
+                     class="p-inputtext p-component w-full"
+                     (change)="handleFileUpload($event, 'sello')" />
           </div>
       </ng-container>
 

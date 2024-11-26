@@ -15,10 +15,20 @@ import { FloatLabel, FloatLabelModule } from 'primeng/floatlabel';
 import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { AvatarModule } from 'primeng/avatar';
+import { Director } from './models/director.model';
+import { Facultad } from '../mantener-facultades/models/facultad';
+import { Escuela } from '../mantener-facultades/models/escuela';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
+
+interface Role {
+  nombre: string;
+}
 
 @Component({
   selector: 'app-persona',
   templateUrl: './gestionusuarios.component.html',
+  providers: [MessageService],
   standalone: true,
   imports: [
     CommonModule,
@@ -30,7 +40,8 @@ import { AvatarModule } from 'primeng/avatar';
     DialogModule,
     AvatarModule,     // Add this
     TableModule,      // Add this
-    ToastModule
+    ToastModule,
+    /*BrowserAnimationsModule*/
   ],
   styleUrls: ['./gestionusuarios.component.css']
 })
@@ -40,7 +51,11 @@ export class GestionusuariosComponent implements OnInit {
   persona: any = {};
   usuario: any = {};
   usuarios: any[] = [];
-  roles: string[] = ['COORDINADOR', 'DIRECTOR', 'DOCENTE'];
+  roles: Role[] = [
+    { nombre: 'COORDINADOR' },
+    { nombre: 'DIRECTOR' },
+    { nombre: 'DOCENTE' }
+  ];
   selectedRole: string = 'COORDINADOR';
   carreras: any[] = [];
   facultades: any[] = [];
@@ -49,7 +64,7 @@ export class GestionusuariosComponent implements OnInit {
   temporaryUsers: any[] = [];
   carreraDialogVisible = false;
   currentRoleIndex: number = 0;
-  currentRole: any = { nombre: 'COORDINADOR' };
+  currentRole: Role = { nombre: 'COORDINADOR' }; // Aseguramos que siempre tenga un valor inicial
 
   constructor(
     private messageService: MessageService,
@@ -59,112 +74,106 @@ export class GestionusuariosComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No hay sesión activa'
+      });
+      return;
+    }
     this.loadRoles();
     this.cargarFacultades();
-    this.listarUsuarios(); // Add this line to load users on init
+
   }
 
-  cargarCarreras() {
-    this.escuelaService.getEscuela().subscribe(
-      (data: any[]) => {
-        console.log('Datos de carreras recibidos:', data);
-        this.carreras = data.map(carrera => ({
-          id: carrera.id,
-          nombre: carrera.carrera // Cambiado de nombre a carrera para coincidir con el modelo
-        }));
+  listarUsuarios() {
+    this.gestionusuariosService.getUsers().subscribe({
+      next: (data) => {
+        console.log('Usuarios recibidos:', data);
+        this.usuarios = data;
       },
-      (error) => {
-        console.error('Error al cargar carreras:', error);
+      error: (error) => {
+        console.error('Error al cargar usuarios:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudieron cargar las carreras'
+          detail: 'No se pudieron cargar los usuarios'
         });
       }
-    );
+    });
   }
 
-  cargarFacultades() {
-    this.facultadService.getFacultades().subscribe(
-      (data: any[]) => {
-        console.log('Facultades recibidas:', data);
-        this.facultades = data;
-      },
-      (error) => {
-        console.error('Error al cargar facultades:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron cargar las facultades'
-        });
-      }
-    );
-  }
 
-  loadCarrerasByFacultad() {
-    if (!this.selectedFacultad) {
-      this.carreras = [];
-      return;
-    }
-    this.escuelaService.getEscuelasByFacultad(this.selectedFacultad.id).subscribe(
-      (data: any[]) => {
-        console.log('Carreras recibidas:', data);
-        this.carreras = data;
-      },
-      (error) => {
-        console.error('Error al cargar carreras:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron cargar las carreras'
-        });
-      }
-    );
-  }
-
-  cargarRoles() {
-    if (!this.selectedCarrera) {
-      this.roles = [];
-      this.currentRole = { nombre: 'Vacío' };
-      return;
-    }
-
-    this.gestionusuariosService.getRoles().subscribe(
-      (data: any[]) => {
-        this.roles = data;
-        if (this.roles.length > 0) {
-          this.currentRole = this.roles[0];
-          this.currentRoleIndex = 0;
-        } else {
-          this.currentRole = { nombre: 'Vacío' };
-        }
-      },
-      (error) => {
-        console.error('Error al obtener roles', error);
-        this.currentRole = { nombre: 'Error al cargar roles' };
-      }
-    );
-  }
 
   showCarreraDialog() {
     this.carreraDialogVisible = true;
   }
 
-  loadFacultades() {
-    if (!this.selectedCarrera) {
-      this.facultades = [];
-      return;
-    }
-    this.facultadService.getFacultades().subscribe(
-      (data: any[]) => {
+  cargarFacultades() {
+    console.log('Cargando facultades...');
+    this.gestionusuariosService.getFacultades().subscribe({
+      next: (data: any) => {
         console.log('Facultades recibidas:', data);
-        this.facultades = data;
+        if (Array.isArray(data)) {
+          this.facultades = data;
+        } else if (data && typeof data === 'object') {
+          // Si la respuesta está en un objeto, ajusta según la estructura
+          this.facultades = data.content || data.data || [];
+        }
+
+        if (this.facultades.length === 0) {
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Info',
+            detail: 'No hay facultades disponibles'
+          });
+        }
       },
-      (error) => {
-        console.error('Error al cargar facultades:', error);
+      error: (error) => {
+        console.error('Error detallado:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `Error al cargar facultades: ${error.status} - ${error.statusText}`
+        });
       }
-    );
-    this.cargarRoles();
+    });
+  }
+
+  loadCarrerasByFacultad() {
+    if (this.selectedFacultad?.id) {
+      this.escuelaService.getEscuelasByFacultad(this.selectedFacultad.id).subscribe({
+        next: (data: Escuela[]) => {
+          console.log('Carreras recibidas:', data);
+          this.carreras = data;
+        },
+        error: (error) => {
+          console.error('Error al cargar carreras:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudieron cargar las carreras'
+          });
+        }
+      });
+    } else {
+      this.carreras = [];
+    }
+  }
+
+  onFacultadChange(event: any) {
+    if (event.value) {
+      this.selectedFacultad = event.value;
+      this.selectedCarrera = null; // Reset carrera selection
+      this.loadCarrerasByFacultad();
+    }
+  }
+
+  onCarreraChange(event: any) {
+    console.log('Carrera seleccionada:', event.value);
+    this.selectedCarrera = event.value;
   }
 
   confirmSelection() {
@@ -176,8 +185,21 @@ export class GestionusuariosComponent implements OnInit {
       });
       return;
     }
+
+    console.log('Confirmando selección:', {
+      facultad: this.selectedFacultad,
+      carrera: this.selectedCarrera
+    });
+
     this.carreraDialogVisible = false;
-    this.listarUsuarios();
+    this.cargarRoles(); // Cargar roles después de confirmar la selección
+
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: `Carrera seleccionada: ${this.selectedCarrera.carrera}`
+    });
   }
 
   cancelSelection() {
@@ -185,40 +207,40 @@ export class GestionusuariosComponent implements OnInit {
     this.selectedCarrera = null;
     this.selectedFacultad = null;
     this.carreras = [];
-    this.roles = [];
-    this.currentRole = { nombre: 'Vacío' };
+    this.roles = [{ nombre: 'COORDINADOR' }]; // Aseguramos que siempre haya al menos un rol
+    this.currentRole = { nombre: 'COORDINADOR' }; // Mantenemos un valor por defecto
   }
 
   previousRole() {
     this.currentRoleIndex = (this.currentRoleIndex - 1 + this.roles.length) % this.roles.length;
-    this.selectedRole = this.roles[this.currentRoleIndex];
-    this.currentRole = { nombre: this.selectedRole };
+    this.currentRole = this.roles[this.currentRoleIndex];
+    this.selectedRole = this.currentRole.nombre;
     this.clearForm();
   }
 
   nextRole() {
     this.currentRoleIndex = (this.currentRoleIndex + 1) % this.roles.length;
-    this.selectedRole = this.roles[this.currentRoleIndex];
-    this.currentRole = { nombre: this.selectedRole };
+    this.currentRole = this.roles[this.currentRoleIndex];
+    this.selectedRole = this.currentRole.nombre;
     this.clearForm();
   }
 
-  listarUsuarios() {
-    this.gestionusuariosService.getUsers().subscribe(
-      (data) => {
-        console.log('Usuarios recibidos:', data);
-        this.usuarios = data;
-      },
-      (error) => {
-        console.error('Error al cargar usuarios:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron cargar los usuarios'
-        });
-      }
-    );
-  }
+  // listarUsuarios() {
+  //   this.gestionusuariosService.getUsers().subscribe(
+  //     (data) => {
+  //       console.log('Usuarios recibidos:', data);
+  //       this.usuarios = data;
+  //     },
+  //     (error) => {
+  //       console.error('Error al cargar usuarios:', error);
+  //       this.messageService.add({
+  //         severity: 'error',
+  //         summary: 'Error',
+  //         detail: 'No se pudieron cargar los usuarios'
+  //       });
+  //     }
+  //   );
+  // }
 
   addToTemporaryList() {
     if (!this.persona.nombre || !this.persona.apellido) {
@@ -270,11 +292,12 @@ export class GestionusuariosComponent implements OnInit {
       };
 
       if (this.currentRole.nombre === 'DIRECTOR') {
-        return this.gestionusuariosService.signUpDirector({
+        const directorData: Director = {
           ...baseUserData,
-          firma: tempUser.firma || 'base64-firma', // Asegúrate de capturar estos valores del formulario
+          firma: tempUser.firma || 'base64-firma',
           sello: tempUser.sello || 'base64-sello'
-        }).toPromise();
+        };
+        return this.gestionusuariosService.signUpDirector(directorData).toPromise();
       } else {
         return this.gestionusuariosService.signUp({
           ...baseUserData,
@@ -293,7 +316,7 @@ export class GestionusuariosComponent implements OnInit {
           detail: `Se han registrado ${this.temporaryUsers.length} usuarios exitosamente`
         });
         this.temporaryUsers = []; // Limpiar la lista temporal
-        this.listarUsuarios(); // Actualizar la lista después de crear usuarios
+         // Actualizar la lista después de crear usuarios
       })
       .catch(error => {
         console.error('Error al crear usuarios:', error);
@@ -351,5 +374,17 @@ export class GestionusuariosComponent implements OnInit {
   clearForm() {
     this.persona = {};
     this.usuario = {};
+  }
+
+  cargarRoles() {
+    // If you want to load roles from a service later, you can implement it here
+    // For now, we'll use the static roles defined above
+    this.roles = [
+      { nombre: 'COORDINADOR' },
+      { nombre: 'DIRECTOR' },
+      { nombre: 'DOCENTE' }
+    ];
+    this.currentRole = this.roles[this.currentRoleIndex];
+    this.selectedRole = this.currentRole.nombre;
   }
 }

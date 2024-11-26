@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Director } from '../models/director.model';
 
@@ -11,6 +11,16 @@ export class GestionusuariosService {
   private readonly BASE_URL = 'http://localhost:8080';
 
   constructor(private http: HttpClient) {}
+
+  private getHttpOptions() {
+    const token = localStorage.getItem('token');
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      })
+    };
+  }
 
   signUp(userData: {
     username: string;
@@ -28,7 +38,7 @@ export class GestionusuariosService {
 
   signUpDirector(directorData: Director): Observable<any> {
     console.log('Enviando datos de director al servidor:', directorData);
-    return this.http.post(`${this.BASE_URL}/users/createdirectora`, directorData);
+    return this.http.post(`${this.BASE_URL}/mantener/api/users/createdirectora`, directorData);
   }
 
   getEscuelas(): Observable<any> {
@@ -39,6 +49,16 @@ export class GestionusuariosService {
     return this.http.get(`http://localhost:8080/facultades/escuela/${escuelaId}`);
   }
 
+  getFacultades() {
+    const token = localStorage.getItem('token');
+    return this.http.get(`${this.BASE_URL}/mantener/facultad`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+
   getRoles(): Observable<string[]> {
     return new Observable(observer => {
       observer.next(['COORDINADOR', 'DIRECTOR', 'DOCENTE']);
@@ -47,6 +67,6 @@ export class GestionusuariosService {
   }
 
   getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.BASE_URL}/users`);
+    return this.http.get<any[]>(`${this.BASE_URL}/mantener/api/usuarios`);
   }
 }

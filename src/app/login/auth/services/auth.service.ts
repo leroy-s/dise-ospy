@@ -105,26 +105,52 @@ export class AuthService {
 
   getUserRoles(): string[] {
     const token = this.getToken();
-    if (token) {
-      try {
-        const decodedToken = this.jwtHelper.decodeToken(token);
-        if (decodedToken && decodedToken.authorities) {
-          const roles = typeof decodedToken.authorities === 'string'
-            ? decodedToken.authorities.split(',')
-            : decodedToken.authorities;
-          return roles.map((role: string) => role.trim());
+    if (!token) {
+      console.warn('No hay token disponible');
+      return [];
+    }
+
+    try {
+      const decodedToken = this.jwtHelper.decodeToken(token);
+      console.log('🔍 Token decodificado completo:', decodedToken);
+      console.log('🎭 Authorities del token:', decodedToken.authorities);
+
+      if (decodedToken && decodedToken.authorities) {
+        let roles = [];
+        if (typeof decodedToken.authorities === 'string') {
+          roles = decodedToken.authorities.split(',');
+        } else {
+          roles = Array.isArray(decodedToken.authorities) ?
+                 decodedToken.authorities : [decodedToken.authorities];
         }
-      } catch (error) {
-        console.error('Error decodificando token:', error);
+        console.log('📋 Roles extraídos:', roles);
+        const trimmedRoles = roles.map((role: string) => role.trim());
+        console.log('✨ Roles procesados:', trimmedRoles);
+        return trimmedRoles;
       }
+    } catch (error) {
+      console.error('❌ Error al decodificar token:', error);
     }
     return [];
   }
 
   hasRole(role: string): boolean {
     const userRoles = this.getUserRoles();
-    console.log('Roles del usuario:', userRoles);
-    console.log('Rol requerido:', role);
-    return userRoles.some(userRole => userRole.includes(role));
+    const normalizedRequiredRole = role.toUpperCase().replace('ROLE_', '');
+
+    console.log('🔑 Token actual:', this.getToken());
+    console.log('👤 Roles del usuario sin procesar:', userRoles);
+    console.log('🎯 Rol requerido (normalizado):', normalizedRequiredRole);
+
+    const hasRole = userRoles.some(userRole => {
+      const normalizedUserRole = userRole.trim().toUpperCase().replace('ROLE_', '');
+      console.log(`🔄 Comparando: "${normalizedUserRole}" con "${normalizedRequiredRole}"`);
+      const matches = normalizedUserRole === normalizedRequiredRole;
+      console.log(`${matches ? '✅' : '❌'} Coincidencia:`, matches);
+      return matches;
+    });
+
+    console.log(`🎭 Resultado final: ${hasRole ? 'Tiene el rol' : 'No tiene el rol'}`);
+    return hasRole;
   }
 }

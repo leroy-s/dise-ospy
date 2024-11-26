@@ -43,7 +43,9 @@ export class FormComponent {
   ) {}
 
   onSubmit(): void {
+    console.log('🔵 Iniciando login...');
     if (!this.loginData.username || !this.loginData.password) {
+      console.log('❌ Campos incompletos');
       this.MessageService.add({
         severity: 'error',
         summary: 'Error',
@@ -53,25 +55,38 @@ export class FormComponent {
     }
 
     this.loading = true;
+    console.log('🔑 Intentando login con usuario:', this.loginData.username);
+
     this.authService.login({
       username: this.loginData.username,
       password: this.loginData.password
     }).subscribe({
       next: (response: AuthResponse) => {
+        console.log('✅ Respuesta del servidor:', response);
         if (response.status) {
           if (this.loginData.remember) {
             localStorage.setItem('remember_user', this.loginData.username);
           }
           const authorities = this.authService.getUserAuthorities();
+          console.log('👤 Roles del usuario:', authorities);
+
           if (authorities.includes('ROLE_ADMIN')) {
+            console.log('🎯 Redirigiendo a /sidebar (ADMIN)');
             this.router.navigate(['/sidebar']);
           } else if (authorities.includes('ROLE_DIRECTOR')) {
+            console.log('🎯 Redirigiendo a /director');
             this.router.navigate(['/director']);
           } else if (authorities.includes('ROLE_COORDINADOR')) {
+            console.log('🎯 Redirigiendo a /coordinador');
             this.router.navigate(['/coordinador']);
           } else if (authorities.includes('ROLE_SECRETARIA')) {
+            console.log('🎯 Redirigiendo a /secretaria');
             this.router.navigate(['/secretaria']);
+          } else if (authorities.includes('ROLE_PRACTICANTE')) {
+            console.log('🎯 Redirigiendo a /sidebarpracticante');
+            this.router.navigate(['/sidebarpracticante/inicio']);
           } else {
+            console.log('⛔ Sin permisos suficientes');
             this.MessageService.add({
               severity: 'error',
               summary: 'Error',
@@ -79,6 +94,7 @@ export class FormComponent {
             });
           }
         } else {
+          console.log('❌ Error de autenticación:', response.message);
           this.MessageService.add({
             severity: 'error',
             summary: 'Error',
@@ -87,6 +103,7 @@ export class FormComponent {
         }
       },
       error: (error: any) => {
+        console.error('🔴 Error en login:', error);
         this.MessageService.add({
           severity: 'error',
           summary: 'Error',
@@ -94,6 +111,7 @@ export class FormComponent {
         });
       },
       complete: () => {
+        console.log('🏁 Login proceso completado');
         this.loading = false;
       }
     });

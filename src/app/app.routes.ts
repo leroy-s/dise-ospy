@@ -23,6 +23,12 @@ import { ValidacionComponent } from './coordinador/validacion/validacion.compone
 import { ComienzopppComponent } from './coordinador/comienzoppp/comienzoppp.component';
 import { SeguimientodeusuarioComponent } from './coordinador/seguimientodeusuario/seguimientodeusuario.component';
 import { RequisitosdedocumentacionComponent } from './coordinador/requisitosdedocumentacion/requisitosdedocumentacion.component';
+import { SidebarpracticanteComponent } from './practicante/sidebarpracticante/sidebarpracticante.component';
+import { InicioComponent } from './practicante/inicio/inicio.component';
+import { GestionarCartaPresentacionComponent } from './practicante/gestionar-carta-presentacion/gestionar-carta-presentacion.component';
+import { AdministrarDocumentosComponent } from './practicante/administrar-documentos/administrar-documentos.component';
+import { MisEvaluacionesComponent } from './practicante/mis-evaluaciones/mis-evaluaciones.component';
+import { CorreoComponent } from './practicante/correo/correo.component';
 
 
 export const routes: Routes = [
@@ -71,7 +77,8 @@ export const routes: Routes = [
   ,{
     path: 'coordinador',
     component: CoordinadorComponent,
-
+    canActivate: [authGuard],
+    data: { roles: ['COORDINADOR'] },
   },
 
   {
@@ -128,21 +135,59 @@ export const routes: Routes = [
     ]
   },
 
-
-
-
   {
     path: 'tutor',
     component: TutorComponent,
     canActivate: [authGuard],
     data: { roles: ['TUTOR'] }
   },
+
+
   {
     path: 'practicante',
     component: PracticanteComponent,
-    canActivate: [authGuard],
-    data: { roles: ['PRACTICANTE'] }
+
   },
+  {
+      path: 'sidebarpracticante',
+      component: SidebarpracticanteComponent,
+      title: 'Sidebarpracticante',
+      canActivate: [authGuard],
+      data: { roles: ['PRACTICANTE', 'ROLE_PRACTICANTE'] }, // Aceptamos ambos formatos
+      children:[
+        {
+          path: 'inicio',
+          component: InicioComponent,
+          title: 'Componente inicio'
+          },
+          {
+            path: 'cartappp',
+            component:  GestionarCartaPresentacionComponent,
+            title: 'Componente de cartas'
+         },
+         {
+          path: 'documentacion',
+          component:  AdministrarDocumentosComponent,
+          title: 'Componente de documentos'
+      }
+      ,
+      {
+          path: 'evaluaciones',
+          component:  MisEvaluacionesComponent,
+          title: 'Componente de documentos'
+      }
+      ,
+      {
+          path: 'correo',
+          component:  CorreoComponent,
+          title: 'Componente de documentos'
+      },
+         {
+          path :'**',
+          redirectTo: ''
+         }
+      ]
+    },
   {
     path: 'director',
     component: DirectorComponent,
