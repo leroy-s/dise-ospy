@@ -3,3 +3,13 @@
 @import "primeng/resources/primeng.css";
 @import "primeicons/primeicons.css";
 @import "primeflex/primeflex.css";
+
+/* Ocultar la barra de desplazamiento en navegadores webkit (Chrome, Safari) */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ocultar la barra de desplazamiento en Firefox */
+* {
+  scrollbar-width: none; /* Oculta la barra de desplazamiento en Firefox */
+}
