@@ -102,4 +102,29 @@ export class AuthService {
     }
     return throwError(() => errorMessage);
   }
+
+  getUserRoles(): string[] {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decodedToken = this.jwtHelper.decodeToken(token);
+        if (decodedToken && decodedToken.authorities) {
+          const roles = typeof decodedToken.authorities === 'string'
+            ? decodedToken.authorities.split(',')
+            : decodedToken.authorities;
+          return roles.map((role: string) => role.trim());
+        }
+      } catch (error) {
+        console.error('Error decodificando token:', error);
+      }
+    }
+    return [];
+  }
+
+  hasRole(role: string): boolean {
+    const userRoles = this.getUserRoles();
+    console.log('Roles del usuario:', userRoles);
+    console.log('Rol requerido:', role);
+    return userRoles.some(userRole => userRole.includes(role));
+  }
 }

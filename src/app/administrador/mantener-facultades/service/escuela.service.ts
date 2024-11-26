@@ -12,6 +12,7 @@ export class EscuelaService {
   constructor(private http: HttpClient) {}
 
   getEscuelasByFacultad(facultadId: number): Observable<Escuela[]> {
+    // Actualizando la URL para que coincida con el endpoint del backend
     return this.http.get<Escuela[]>(`${this.apiUrl}/facultad/${facultadId}`);
   }
 

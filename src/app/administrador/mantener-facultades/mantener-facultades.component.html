@@ -64,3 +64,23 @@
       </div>
   </div>
 </div>
+
+<!-- Add this dialog at the end of the file -->
+<p-dialog [(visible)]="displayDialog" [header]="'Crear ' + dialogMode" [modal]="true" [style]="{width: '400px'}">
+    <div class="p-fluid">
+        <div class="field">
+            <label [for]="dialogMode === 'campus' ? 'sede' : dialogMode === 'facultad' ? 'nombre' : 'carrera'">
+                {{dialogMode === 'campus' ? 'Sede' : dialogMode === 'facultad' ? 'Nombre' : 'Carrera'}}
+            </label>
+            <input pInputText
+                   [id]="dialogMode === 'campus' ? 'sede' : dialogMode === 'facultad' ? 'nombre' : 'carrera'"
+                   [(ngModel)]="newItem[dialogMode === 'campus' ? 'sede' : dialogMode === 'facultad' ? 'nombre' : 'carrera']" />
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" styleClass="p-button-text"></p-button>
+        <p-button label="Guardar" icon="pi pi-check" (click)="saveNewItem()"></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

@@ -1,107 +1,158 @@
-<h4 style="font-size: 1em; font-weight: bold; text-align: left; margin: 0; padding-left: 1rem; margin-top: -2rem;">mantener elementos</h4>
+<!-- mantener-elementos.component.html -->
+<h4 style="font-size: 1em; font-weight: bold; text-align: left; margin: 0; padding-left: 1rem; margin-top: -2rem;">
+  Mantener Elementos
+</h4>
+
 <!-- Botón de Regresar -->
 <div class="button-container flex justify-content-end align-items-center mt-3 mr-4">
-  <p-button label="REGRESAR" icon="pi pi-arrow-left" styleClass="logout-button" [style]="{'background-color': '#ffa500', 'color': '#fff', 'font-size': '0.6em', 'padding': '0.3em 1em', 'border-radius': '5px', 'border': 'none'}"></p-button>
+  <p-button label="REGRESAR" icon="pi pi-arrow-left" styleClass="logout-button"
+    [style]="{'background-color': '#ffa500', 'color': '#fff', 'font-size': '0.6em', 'padding': '0.3em 1em', 'border-radius': '5px', 'border': 'none'}">
+  </p-button>
 </div>
-  
-  <div class="filter-bar p-1 surface-50 border-round shadow-1 flex align-items-center gap-3" style="width: 100%; max-width: 10000px;margin-top: 0.5rem">
-    <!-- Botón para abrir la selección de facultad -->
-    <button pButton label="Seleccionar Facultad" icon="pi pi-chevron-down" class="p-button-sm"
-            style="background-color: #f5f5f5; color: #666; border: 1px solid #ccc;"
-            (click)="showFacultadDialog()"></button>
-  
-    <span class="divider"></span>
-  
-    <!-- Etiqueta de carrera o programa (inicialmente vacío) -->
-    <span class="role-label">{{ currentCarrera?.nombre || 'Seleccione una carrera' }}</span>
-  
-    <!-- Botones de navegación para cambiar de carrera dentro de la facultad seleccionada -->
-    <div class="navigation-buttons flex align-items-center gap-2">
-      <button pButton icon="pi pi-angle-left" class="p-button-text p-button-sm" (click)="previousCarrera()"></button>
-      <button pButton icon="pi pi-angle-right" class="p-button-text p-button-sm" (click)="nextCarrera()"></button>
+
+<div class="filter-bar p-1 surface-50 border-round shadow-1 flex align-items-center gap-3"
+     style="width: 100%; max-width: 10000px; margin-top: 0.5rem">
+     <p-dropdown id="facultad"
+     [options]="facultades"
+     [(ngModel)]="roleForm.facultadId"
+     optionLabel="nombre"
+     optionValue="id"
+     placeholder="Seleccione una facultad"
+     (onChange)="onFacultadChange($event)"
+     [style]="{'width': '300px'}">
+</p-dropdown>
+
+  <span class="divider"></span>
+
+  <p-dropdown id="escuela"
+  [options]="escuelas"
+  [(ngModel)]="roleForm.escuelaId"
+  optionLabel="carrera"
+  optionValue="id"
+  placeholder="Seleccione una escuela"
+  [style]="{'width': '300px'}"
+  [disabled]="!roleForm.facultadId">
+</p-dropdown>
+
+  <span class="ml-auto" style="font-weight: bold; margin-right: 200px;">Asignación de Roles y Permisos</span>
+</div>
+
+<div class="main-content flex gap-4 mt-3">
+  <!-- Panel izquierdo para el formulario de rol -->
+  <div class="roles-container p-3 surface-50 border-round shadow-2"
+       style="position: relative; width: 100%; max-width: 400px; background-color: #f9f9f9; height: 450px;">
+    <h3 style="font-size: 1rem; font-weight: bold; text-align: center; margin: 0; padding: 0.5rem 0;">
+      Asignar Rol
+    </h3>
+    <hr style="border: none; border-top: 1px solid #ccc; margin: 0.5rem 0;" />
+
+    <div class="p-3">
+      <label for="roleEnum">Nombre del Rol</label>
+      <input pInputText
+             id="roleEnum"
+             [(ngModel)]="roleForm.roleEnum"
+             placeholder="Ingrese el nombre exacto del rol"
+             class="w-full mb-3"
+             required>
     </div>
-  
-    <span class="ml-auto" style="font-weight: bold; margin-right: 200px;">Campo de ediciones</span>
   </div>
-  
-  <div class="main-content flex gap-4 mt-3">
-    <div class="roles-container p-3 surface-50 border-round shadow-2"
-         style="position: relative; width: 100%; max-width: 400px; background-color: #f9f9f9; height: 450px;">
-      <h3 style="font-size: 1rem; font-weight: bold; text-align: center; margin: 0; padding: 0.5rem 0;">
-        Roles s. prácticas pre profesionales
-      </h3>
-      <hr style="border: none; border-top: 1px solid #ccc; margin: 0.5rem 0;" />
-  
-      <div *ngIf="roles.length > 0; else emptyState">
-        <div *ngFor="let role of roles" class="p-3 mb-2 border-round shadow-1 flex align-items-center justify-content-between"
-             style="display: flex; justify-content: space-between; align-items: center; background-color: #f2f2f2; border: 1px solid #ddd; cursor: pointer;">
-          <span>{{ role.nombre }}</span>
-          <i class="pi pi-chevron-right"></i>
+
+  <!-- Panel derecho para los permisos -->
+  <div class="empty-container surface-card border-round shadow-2"
+       style="position: relative; width: 100%; max-width: 900px; height: 450px; background-color: #f9f9f9; margin-left: auto;">
+    <div class="p-3">
+      <h4>Permisos Disponibles</h4>
+      <div class="grid">
+        <div *ngFor="let permission of availablePermissions"
+             class="col-12 md:col-6 mb-2">
+          <p-checkbox
+            [value]="permission.name"
+            [(ngModel)]="permission.selected"
+            (onChange)="onPermissionChange(permission.name, permission.selected)"
+            [label]="permission.name">
+          </p-checkbox>
         </div>
       </div>
-  
-      <ng-template #emptyState>
-        <p style="text-align: center; color: #999;">No hay registros de roles disponibles.</p>
-      </ng-template>
-  
-      <button pButton [icon]="showRoleForm ? 'pi pi-minus' : 'pi pi-plus'" class="p-button-rounded p-button-outlined p-button-sm"
-              style="position: absolute; top: 10px; right: 10px; background-color: #0052cc; color: #fff; border: none; width: 2rem; height: 2rem; padding: 0.2rem;"
-              (click)="toggleRoleForm()">
-      </button>
-    </div>
-  
-    <!-- Contenedor para el formulario de nuevo rol -->
-    <div class="empty-container surface-card border-round shadow-2"
-         style="position: relative; width: 100%; max-width: 900px; height: 450px; background-color: #f9f9f9; margin-left: auto;">
-      <div *ngIf="showRoleForm" class="p-3 mt-3 border-round shadow-1 surface-100" style="background-color: #f9f9f9;">
-        <h4>Formulario de Rol</h4>
-        <div>
-          <label>Nombre:</label>
-          <input pInputText [(ngModel)]="roleForm.nombre" />
-  
-          <h5>Editor:</h5>
-          <div class="editor-selector flex align-items-center">
-            <button pButton icon="pi pi-angle-left" class="p-button-text" (click)="previousEditor()"></button>
-            <span>{{ selectedEditor?.nombre || 'vacío' }}</span>
-            <button pButton icon="pi pi-angle-right" class="p-button-text" (click)="nextEditor()"></button>
-          </div>
-  
-          <h5>Privilegios:</h5>
-          <div class="privilegios-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
-            <div *ngFor="let acceso of accesos" class="privilegio-item flex align-items-center gap-2">
-              <label class="p-button-text" style="background-color: #e0e0e0; padding: 0.3rem 0.5rem; width: 100%; text-align: left;">
-                <input type="checkbox" [(ngModel)]="acceso.seleccionado" /> {{ acceso.nombre }}
-              </label>
-              <button *ngIf="acceso.nombre === 'Gestionar' || acceso.nombre === 'vista de Inicio'" pButton icon="pi pi-chevron-down"
-                      class="p-button-text" (click)="toggleSubventana(acceso.nombre)"></button>
-            </div>
-          </div>
-        </div>
-  
-        <!-- Subventanas de privilegios adicionales -->
-        <div *ngIf="showGestionarSubventana" class="subventana shadow-1 p-2 mt-2" style="background-color: #f1f1f1; border-radius: 5px;">
-          <h5>Gestionar</h5>
-          <div *ngFor="let item of gestionarItems">
-            <label>
-              <input type="checkbox" [(ngModel)]="item.seleccionado" /> {{ item.nombre }}
-            </label>
-          </div>
-        </div>
-  
-        <div *ngIf="showInicioSubventana" class="subventana shadow-1 p-2 mt-2" style="background-color: #f1f1f1; border-radius: 5px;">
-          <h5>Vista de Inicio</h5>
-          <div *ngFor="let item of inicioItems">
-            <label>
-              <input type="checkbox" [(ngModel)]="item.seleccionado" /> {{ item.nombre }}
-            </label>
-          </div>
-        </div>
-  
-        <div class="flex justify-content-end mt-3">
-          <button pButton label="limpiar" class="p-button-outlined p-button-sm" (click)="clearForm()"></button>
-          <button pButton label="confirmar" class="p-button-primary p-button-sm ml-2" (click)="confirmForm()"></button>
-        </div>
+
+      <div class="flex justify-content-end mt-3">
+        <button pButton
+                label="Limpiar"
+                class="p-button-outlined mr-2"
+                (click)="clearForm()">
+        </button>
+        <button pButton
+                label="Asignar Permisos"
+                class="p-button-primary"
+                (click)="assignRole()">
+        </button>
       </div>
     </div>
   </div>
-  
+</div>
+
+<!-- Tabla de Asignaciones -->
+<div class="card mt-4">
+  <p-table #dt [value]="roleAssignments" [paginator]="true" [rows]="10"
+           [globalFilterFields]="['roleEnum','facultadNombre','escuelaNombre']"
+           [showCurrentPageReport]="true"
+           currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+           [rowsPerPageOptions]="[10,25,50]"
+           styleClass="p-datatable-gridlines">
+    <ng-template pTemplate="caption">
+      <div class="flex justify-content-between align-items-center">
+        <h5 class="m-0">Asignaciones de Roles</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text"
+                 (input)="onGlobalFilter($event)"
+                 placeholder="Buscar..." />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Rol</th>
+        <th>Facultad</th>
+        <th>Escuela</th>
+        <th>Permisos</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-assignment>
+      <tr>
+        <td>{{assignment.roleEnum}}</td>
+        <td>{{assignment.facultadNombre}}</td>
+        <td>{{assignment.escuelaNombre}}</td>
+        <td>
+          <p-tag *ngFor="let permission of assignment.permissions"
+                 [value]="permission"
+                 class="mr-1">
+          </p-tag>
+        </td>
+        <td>
+          <p-tag [severity]="assignment.estado === 'ACTIVO' ? 'success' : 'danger'"
+                 [value]="assignment.estado">
+          </p-tag>
+        </td>
+        <td>
+          <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                  (click)="editAssignment(assignment)">
+          </button>
+          <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                  (click)="deleteAssignment(assignment)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr></tr>
+        <td colspan="6">No se encontraron registros.</td>
+
+    </ng-template>
+  </p-table>
+</div>
+
+<p-toast></p-toast>

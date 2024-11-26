@@ -1,0 +1,85 @@
+<div class="container">
+
+
+    <div class="left-panel">
+        <h1 class="search-title">Practicantes</h1>
+        <div class="search-bar">
+            <div class="input-wrapper">
+                <i class="search-icon fa fa-search"></i>
+                <input type="text" placeholder="Buscar por nombre, apellido o línea..." [(ngModel)]="searchQuery"
+                    (input)="filterPracticantes()" />
+            </div>
+        </div>
+
+        <ul class="practicante-list">
+            <li *ngFor="let practicante of filteredPracticantes" (click)="selectPracticante(practicante)"
+                [class.selected]="practicante.id === selectedPracticante?.id">
+                <div class="avatar">{{ practicante.practicantes.personas.nombre[0] }}</div>
+                <div class="details">
+                    <span class="name">{{ practicante.practicantes.personas.nombre }} {{
+                        practicante.practicantes.personas.apellido }}</span>
+                    <span class="linea">{{ practicante.escuelasprofesionales.carrera }}</span>
+                </div>
+            </li>
+        </ul>
+
+
+        <div class="no-results" *ngIf="!filteredPracticantes || filteredPracticantes.length === 0">
+            No se encontraron resultados para "{{ searchQuery }}"
+        </div>
+    </div>
+    <div class="right-panel">
+
+        <div *ngIf="!currentView" class="card-container">
+
+
+            <div class="header-title">
+                <h1>Requisitos</h1>
+                <div class="title-underline"></div>
+            </div>
+            <div class="document-container">
+                <div class="document-content">
+                    <div class="document-header">
+                        <div class="document-icon">
+                            <i class="pi pi-file-pdf pdf-icon"></i>
+                        </div>
+                        <div class="document-details">
+                            <h3>Carta de presentación firmada</h3>
+                            <p>De: Secretaría</p>
+                            <p>Fecha: 11/10/2024</p>
+                        </div>
+                    </div>
+
+                    <div class="document-actions">
+                        <button class="action-button validate-button" (click)="validateDocument()">
+                            <i class="pi pi-check-circle"></i> Validar
+                        </button>
+                        <button class="action-button comment-button" (click)="toggleCommentBox()">
+                            <i class="pi pi-comment"></i> Comentarios
+                        </button>
+                    </div>
+                </div>
+
+                <div *ngIf="showCommentBox" class="comment-box">
+                    <h4>Comentarios</h4>
+                    <textarea placeholder="Escribe tu comentario..." [(ngModel)]="userComment"></textarea>
+                    <div class="emoji-picker">
+                        <span (click)="addEmoji('😊')">😊</span>
+                        <span (click)="addEmoji('👍')">👍</span>
+                        <span (click)="addEmoji('🎉')">🎉</span>
+                        <span (click)="addEmoji('✅')">✅</span>
+                    </div>
+                    <button class="submit-comment-button" (click)="submitComment()">
+                        Enviar
+                    </button>
+                </div>
+
+                <div *ngIf="showValidation" class="validation-message">
+                    <i class="pi pi-check-circle validation-icon"></i>
+                    <p>¡Documento validado con éxito!</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
