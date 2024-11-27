@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Director } from '../models/director.model';
-
+import { Usuario } from '../models/usuario.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -66,7 +66,7 @@ export class GestionusuariosService {
     });
   }
 
-  getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.BASE_URL}/mantener/api/usuarios`);
+  getUsers(): Observable<Usuario[]> {
+    return this.http.get<Usuario[]>(`${this.AUTH_API}/users`, this.getHttpOptions());
   }
 }

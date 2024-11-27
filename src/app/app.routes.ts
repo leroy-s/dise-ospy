@@ -6,7 +6,6 @@ import { TutorComponent } from './tutor/tutor.component';
 import { PracticanteComponent } from './practicante/practicante.component';
 import { FormComponent } from './login/form/form.component';
 import { DirectorComponent } from './director/director/director.component';
-import { SecretariaComponent } from './secretaria/secretaria/secretaria.component';
 import { MantenerFacultadesComponent } from './administrador/mantener-facultades/mantener-facultades.component';
 import { MantenerElementosComponent } from './administrador/mantener-elementos/mantener-elementos.component';
 import { HistorialComponent } from './administrador/historial/historial.component';
@@ -29,7 +28,11 @@ import { GestionarCartaPresentacionComponent } from './practicante/gestionar-car
 import { AdministrarDocumentosComponent } from './practicante/administrar-documentos/administrar-documentos.component';
 import { MisEvaluacionesComponent } from './practicante/mis-evaluaciones/mis-evaluaciones.component';
 import { CorreoComponent } from './practicante/correo/correo.component';
-
+import { SecretariaComponent } from './secretaria/secretaria.component';
+import { SidebarsecretariaComponent } from './secretaria/sidebarsecretaria/sidebarsecretaria.component';
+import { GestionDeCartasComponent } from './secretaria/gestion-de-cartas/gestion-de-cartas.component';
+import { GestionReportesComponent } from './secretaria/gestion-reportes/gestion-reportes.component';
+//Implementado a medias : Glender
 
 export const routes: Routes = [
   {
@@ -197,9 +200,42 @@ export const routes: Routes = [
   {
     path: 'secretaria',
     component: SecretariaComponent,
-    canActivate: [authGuard],
-    data: { roles: ['SECRETARIA'] }
+  }
+  ,
+  {
+    path: 'sidebarsecretaria',
+    component: SidebarsecretariaComponent,
+    title: 'Sidebarsecretaria',
+    children:[
+      {
+        path: 'gestion_cartas',
+        component: GestionDeCartasComponent,
+        title: 'Componente de cartas'
+    }
+    ,
+    {
+        path: 'reportes',
+        component:  GestionReportesComponent,
+        title: 'Componente de escuelas y facultades'
+    },
+
+       {
+        path :'**',
+        redirectTo: ''
+       }
+
+    ]
   },
+
+
+
+
+
+
+
+
+
+
   {
     path: '',
     redirectTo: 'login',
