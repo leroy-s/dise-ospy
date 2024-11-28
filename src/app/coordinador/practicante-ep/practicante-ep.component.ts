@@ -102,17 +102,17 @@ export class PracticanteEpComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.cargarLineas();
+    // this.cargarLineas();
     this.cargarFacultades();
     this.cargarUsuariosRegistrados();
   }
 
-  cargarLineas() {
-    this.practicanteService.getLineas().subscribe({
-      next: (data) => this.lineas = data,
-      error: (error) => console.error('Error al cargar líneas:', error)
-    });
-  }
+  // cargarLineas() {
+  //   this.practicanteService.getLineas().subscribe({
+  //     next: (data) => this.lineas = data,
+  //     error: (error) => console.error('Error al cargar líneas:', error)
+  //   });
+  // }
 
   cargarFacultades() {
     this.practicanteService.getFacultades().subscribe({
@@ -215,8 +215,7 @@ export class PracticanteEpComponent implements OnInit {
           nacionalidad: usuario.nacionalidad,
           codigo: `${new Date().getFullYear()}001`,
           añoEstudio: this.semestreSeleccionado || '2024-I',
-          escuelaId: this.escuelaSeleccionada!.id,
-          lineaId: this.lineaSeleccionada.id
+          escuelaId: this.escuelaSeleccionada!.id
         };
         this.registrarPracticante(practicante);
       } else {
@@ -226,8 +225,9 @@ export class PracticanteEpComponent implements OnInit {
   }
 
   registrarPracticante(practicante: IPracticante) {
-    if (!this.escuelaSeleccionada?.id || !this.lineaSeleccionada?.id) {
-      this.mostrarError('Seleccione una escuela y una línea');
+    // Eliminar la validación de lineaId ya que no se requiere
+    if (!this.escuelaSeleccionada?.id) {
+      this.mostrarError('Seleccione una escuela');
       return;
     }
 
@@ -235,7 +235,7 @@ export class PracticanteEpComponent implements OnInit {
       next: (response) => {
         this.mostrarMensajeExito('Practicante registrado exitosamente');
         this.usuariosTemporales = [];
-        this.cargarUsuariosRegistrados(); // Recargar la lista después de crear
+        this.cargarUsuariosRegistrados();
       },
       error: (error) => {
         console.error('Error al registrar:', error);

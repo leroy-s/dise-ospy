@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, tap } from 'rxjs';
-import { IPracticante, ILinea, Facultad, EscuelaProfesional } from '../model/usuarioprac-tutor';
+import { IPracticante, Facultad, EscuelaProfesional } from '../model/usuarioprac-tutor';
 
 @Injectable({
   providedIn: 'root'
@@ -15,9 +15,9 @@ export class PracticanteEPService {
     return this.http.post(`${this.baseUrl}/practicantelogin/createpracticante`, practicante);
   }
 
-  getLineas(): Observable<ILinea[]> {
-    return this.http.get<ILinea[]>(`${this.baseUrl}/lineas`);
-  }
+  // getLineas(): Observable<ILinea[]> {
+  //   return this.http.get<ILinea[]>(`${this.baseUrl}/lineas`);
+  // }
 
   getFacultades(): Observable<Facultad[]> {
     return this.http.get<Facultad[]>(`${this.baseUrl}/mantenercord/facultad`).pipe(

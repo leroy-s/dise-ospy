@@ -78,12 +78,12 @@ export interface IPracticanteData {
   semestre: string;
 }
 
-export interface ILinea {
-  id: number;
-  nombre: string;
-  estado: string;
-  nota_max: string;
-}
+// export interface ILinea {
+//   id: number;
+//   nombre: string;
+//   estado: string;
+//   nota_max: string;
+// }
 
 export interface IPracticanteCreate {
   username: string;
@@ -114,6 +114,6 @@ export interface IPracticante {
   codigo: string;
   añoEstudio: string;
   escuelaId: number;
-  lineaId: number;
+  // lineaId: number;
   username?: string; // Ahora es opcional
 }

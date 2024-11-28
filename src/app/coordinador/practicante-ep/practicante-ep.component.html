@@ -110,16 +110,6 @@
           <p-dropdown [options]="['2023-I', '2023-II', '2024-I']" [(ngModel)]="semestreSeleccionado"></p-dropdown>
         </div>
 
-        <!-- Corregir el dropdown de línea -->
-        <div class="field col-6">
-          <label>Línea</label>
-          <p-dropdown [options]="lineas"
-                     [(ngModel)]="lineaSeleccionada"
-                     optionLabel="nombre"
-                     placeholder="Seleccione una línea"
-                     [disabled]="!escuelaSeleccionada">
-          </p-dropdown>
-        </div>
       </div>
 
       <div class="flex justify-content-end mt-3">
