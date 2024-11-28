@@ -30,11 +30,14 @@ export class GestionarCartaPresentacionComponent implements OnInit {
     razonSocial: '',
     direccion: '',
     descripcion: '',
+    nombreArea: '',
+    descripcionArea: '',
     nombreRepresentante: '',
     apellidoRepresentante: '',
     cargoRepresentante: '',
     telefonoRepresentante: '',
     correoRepresentante: '',
+    nombreLinea: '',
     areaPracticaNombre: '',
     areaPracticaDescripcion: ''
   };
@@ -44,11 +47,74 @@ export class GestionarCartaPresentacionComponent implements OnInit {
   mensajeExito: string = '';
   mensajeError: string = '';
 
+  // Lista de cartas disponibles
+  cartas: CartaPresentacion[] = [];
+
+  formularioVisible: boolean = false;
+
   constructor(private cartaService: PersonpracService) {}
 
-  ngOnInit() {
-    this.obtenerCarta();
+  ngOnInit(): void {
+    this.obtenerCartas(); // Cargar cartas guardadas al iniciar el componente
   }
+
+  // Obtener las cartas guardadas desde el backend
+  // Método para obtener las cartas
+  obtenerCartas(): void {
+    this.loading = true;
+    this.cartaService.obtenerCarta().subscribe({
+      next: (data: CartaPresentacion) => {
+        this.carta = data;  // Asigna la carta devuelta al modelo
+        this.formularioVisible = true;  // Muestra el formulario
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('Error al obtener carta', error);
+        this.loading = false;
+      }
+    });
+  }
+  
+  
+
+
+  // Método para crear/guardar una nueva carta
+  guardarCarta(): void {
+    this.loading = true;
+    this.mensajeExito = '';
+    this.mensajeError = '';
+    this.cartaService.comenzarCarta(this.carta).subscribe({
+      next: (response: CartaPresentacion) => {
+        this.mensajeExito = 'Carta enviada exitosamente';
+        this.obtenerCartas();  // Actualizar la lista de cartas después de guardar
+        this.carta = { // Limpiar el formulario
+          ruc: '',
+          razonSocial: '',
+          direccion: '',
+          descripcion: '',
+          nombreArea: '',
+          descripcionArea: '',
+          nombreRepresentante: '',
+          apellidoRepresentante: '',
+          cargoRepresentante: '',
+          telefonoRepresentante: '',
+          correoRepresentante: '',
+          nombreLinea: '',
+          areaPracticaNombre: '',
+          areaPracticaDescripcion: ''
+        };
+        this.formularioVisible = false; // Ocultar el formulario
+        this.loading = false;
+      },
+      error: (error: any) => {
+        this.mensajeError = 'Error al enviar la carta';
+        console.error('Error al enviar la carta', error);
+        this.loading = false;
+      }
+    });
+  }
+
+
 
   obtenerCarta(): void {
     this.loading = true;
@@ -68,11 +134,13 @@ export class GestionarCartaPresentacionComponent implements OnInit {
     this.loading = true;
     this.mensajeError = '';
     this.mensajeExito = '';
-console.log(this.carta);
+    console.log(this.carta);
+  
+    // Aquí enviamos la carta completa (con el correo)
     this.cartaService.comenzarCarta(this.carta).subscribe({
       next: (response: CartaPresentacion) => {
         this.mensajeExito = 'Carta enviada exitosamente';
-        this.obtenerCarta();
+        this.obtenerCarta();  // Actualizar la carta guardada
         this.loading = false;
       },
       error: (error: any) => {
@@ -82,6 +150,8 @@ console.log(this.carta);
       }
     });
   }
+  
+  
 
   showList = false;
   selectedItem: any = null;
@@ -99,8 +169,12 @@ console.log(this.carta);
 
   selectedYear: string = '2024';
 
-  cartas = [
-    { fecha: '23/06/2024', nombre: 'BCP', linea: 'SOFTWARE' },
-    { fecha: '23/06/2024', nombre: 'BCP', linea: 'SOFTWARE' },
-  ];
+  // Otros datos y métodos aquí
+  // ...
+
+  // Método para mostrar el formulario
+  comenzarPracticas() {
+    this.formularioVisible = true;
+  }
+  
 }

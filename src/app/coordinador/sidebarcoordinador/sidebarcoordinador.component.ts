@@ -7,7 +7,7 @@ import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { RippleModule } from 'primeng/ripple';
 import { Sidebar, SidebarModule } from 'primeng/sidebar';
 import { StyleClassModule } from 'primeng/styleclass';
-
+import { AuthService } from '../../extras/AuthService';
 @Component({
   selector: 'app-sidebarcoordinador',
   standalone: true,
@@ -34,7 +34,7 @@ export class SidebarcoordinadorComponent {
   userAvatar: string = 'png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png';
   icono: string = 'default-logo.png'; // Declaración de la propiedad para el logo
 
-  
+  constructor(private authService: AuthService) {}
 
   closeCallback(e: Event): void {
     this.sidebarcoordinadorRef.close(e);
@@ -59,5 +59,8 @@ export class SidebarcoordinadorComponent {
 
   selectSubItem(subItem: string): void {
     this.subSelectedItem = subItem;
+  }
+  onLogout(): void {
+    this.authService.logout();
   }
 }

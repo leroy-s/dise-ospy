@@ -8,7 +8,7 @@ import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { RippleModule } from 'primeng/ripple';
 import { Sidebar, SidebarModule } from 'primeng/sidebar';
 import { StyleClassModule } from 'primeng/styleclass';
-
+import { AuthService } from '../../extras/AuthService';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -33,7 +33,7 @@ export class SidebarComponent {
   sidebarVisible: boolean = false;
   isCollapsed: boolean = false;
   selectedItem: string = 'usuarios'; // Selección por defecto
-
+  constructor(private authService: AuthService) {}
   closeCallback(e: Event): void {
     this.sidebarRef.close(e);
   }
@@ -49,5 +49,8 @@ export class SidebarComponent {
   logout(): void {
     console.log("Cerrando sesión...");
     // Implementa la lógica de cierre de sesión aquí
+  }
+  onLogout(): void {
+    this.authService.logout();
   }
 }

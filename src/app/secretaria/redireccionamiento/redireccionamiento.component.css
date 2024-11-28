@@ -28,15 +28,18 @@ html, body {
     overflow: hidden;
   }
 
+
   .left-panel {
     flex: 1;
     display: flex;
     align-items: flex-start; /* Alinea el contenido hacia la parte superior */
     justify-content: flex-start; /* Alinea el contenido hacia la izquierda */
-    background-color: #f0f0f0;
+    background-image: url('fondo2.jpg');
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    background-size: cover; /* Ajusta la imagen para cubrir el contenedor */
     padding: 20px;
     position: relative;
-  }
+}
   
   .role-card {
     width: 200px;

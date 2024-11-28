@@ -9,7 +9,7 @@ import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { AuthService } from '../../extras/AuthService';
 
 @Component({
   selector: 'app-sidebarsecretaria',
@@ -35,6 +35,7 @@ export class SidebarsecretariaComponent {
   sidebarVisible: boolean = false;
   isCollapsed: boolean = false;
   selectedItem: string = 'usuarios'; // Selección por defecto
+  constructor(private authService: AuthService) {}
 
   closeCallback(e: Event): void {
     this.sidebarsecretariaRef.close(e);
@@ -51,5 +52,8 @@ export class SidebarsecretariaComponent {
   logout(): void {
     console.log("Cerrando sesión...");
     // Implementa la lógica de cierre de sesión aquí
+  }
+  onLogout(): void {
+    this.authService.logout();
   }
 }

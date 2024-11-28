@@ -38,6 +38,7 @@ export const routes: Routes = [
   {
     path: 'login',
     component: FormComponent
+    
   },
   //------------------------------------------------------------
 
@@ -45,7 +46,7 @@ export const routes: Routes = [
   {
       path: 'sidebar',
       component: SidebarComponent,
-      title: 'Sidebar',
+      title: 'Practicas pre profecionales',
       canActivate: [authGuard],
       data: { roles: ['ADMIN'] },
       children:[
@@ -75,69 +76,56 @@ export const routes: Routes = [
 
   }
 
-  //-----------------------------------------------------------
-
-  ,{
+   //-----------------------------------------------------------
+   ,{
     path: 'coordinador',
     component: CoordinadorComponent,
-    canActivate: [authGuard],
-    data: { roles: ['COORDINADOR'] },
-  },
 
+  },
   {
     path: 'sidebarcoordinador',
     component: SidebarcoordinadorComponent,
-    title: 'Sidebarcoordinador',
-   canActivate: [authGuard],
-    data: { roles: ['COORDINADOR'] },
+    title: 'Practicas pre profecionales',
     children:[
       {
         path: 'home',
         component: HomeComponent,
-        title: 'Home',
       },
       {
         path: 'practicante-ep',
         component: PracticanteEpComponent,
-        title: 'Formulario de usuarios',
       },
       {
         path: 'requisitos-finales',
         component: RequisitosFinalesComponent,
-        title: 'Requisitos Finales ',
       },
       {
         path: 'carta-presentacion',
         component: CartaPresentacionComponent,
-        title: 'Carta de presentacion',
       },
       {
       path: 'validacion',
       component: ValidacionComponent,
-      title: 'Requerimientos de Practicas',
     },
     {
         path: 'comienzoppp',
         component: ComienzopppComponent,
-        title: 'Comienzo de Practicas',
       },
       {
         path: 'seguimientodeusuario',
         component: SeguimientodeusuarioComponent,
-        title: 'Seguimiento de usuario',
       },
       {
         path: 'requisitosdedocumentacion',
         component: RequisitosdedocumentacionComponent,
-        title: 'Requerimientos de Documentacion',
       },
       {
-        path :'home',
+        path :'**',
         redirectTo: ''
        }
     ]
   },
-
+   //-----------------------------------------------------------
   {
     path: 'tutor',
     component: TutorComponent,
@@ -154,36 +142,29 @@ export const routes: Routes = [
   {
       path: 'sidebarpracticante',
       component: SidebarpracticanteComponent,
-      title: 'Sidebarpracticante',
-      canActivate: [authGuard],
-      data: { roles: ['PRACTICANTE', 'ROLE_PRACTICANTE'] }, // Aceptamos ambos formatos
+      title: 'Practicas pre profecionales',
       children:[
         {
           path: 'inicio',
           component: InicioComponent,
-          title: 'Componente inicio'
           },
           {
             path: 'cartappp',
             component:  GestionarCartaPresentacionComponent,
-            title: 'Componente de cartas'
          },
          {
           path: 'documentacion',
           component:  AdministrarDocumentosComponent,
-          title: 'Componente de documentos'
       }
       ,
       {
           path: 'evaluaciones',
           component:  MisEvaluacionesComponent,
-          title: 'Componente de documentos'
       }
       ,
       {
           path: 'correo',
           component:  CorreoComponent,
-          title: 'Componente de documentos'
       },
          {
           path :'**',
@@ -205,18 +186,16 @@ export const routes: Routes = [
   {
     path: 'sidebarsecretaria',
     component: SidebarsecretariaComponent,
-    title: 'Sidebarsecretaria',
+    title: 'Practicas pre profecionales',
     children:[
       {
         path: 'gestion_cartas',
         component: GestionDeCartasComponent,
-        title: 'Componente de cartas'
     }
     ,
     {
         path: 'reportes',
         component:  GestionReportesComponent,
-        title: 'Componente de escuelas y facultades'
     },
 
        {

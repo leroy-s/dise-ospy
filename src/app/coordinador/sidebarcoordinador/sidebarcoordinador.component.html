@@ -8,13 +8,13 @@
         <i class="pi pi-th-large grid-icon" (click)="overlayPanel.toggle($event)"></i>
 
         <span class="font-bold">Coordinador</span>
-        <p-avatar image="icons/png-transparent-user-profile-computer-icons-login-user-avatars-thumbnail.png" shape="circle"></p-avatar>
+        <p-avatar image="icons/image.png" shape="circle"></p-avatar>
 
         <p-overlayPanel #overlayPanel>
-            <div class="overlay-content">
-                <!-- Botón de Cerrar sesión sin estilos adicionales -->
-                <button class="logout-button" (click)="logout()">Cerrar sesión</button>
-            </div>
+          <div class="overlay-content">
+            <!-- Botón de Cerrar sesión sin estilos adicionales -->
+            <button class="logout-button" (click)="onLogout()">Cerrar sesión</button>
+        </div>
         </p-overlayPanel>
     </div>
 </div>
